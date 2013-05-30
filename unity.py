@@ -1,4 +1,12 @@
 # coding=utf8
+
+'''
+Notes:
+- Descending off float is too restrictive.  We should take the value
+  type out, and allow people to use any type.
+
+'''
+
 import collections
 import copy
 import traceback
