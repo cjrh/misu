@@ -1,4 +1,15 @@
+from __future__ import division
+
+import traceback
+import sys
+
 import parsley
+def get_unit_text(value):
+    if value[1] == None:
+        return ''
+    else:
+        return value[1]
+
 def calculate(start, pairs):
     print 'start={} pairs={}'.format(start, pairs)
     result = start
@@ -10,8 +21,8 @@ def calculate(start, pairs):
         if type(value) != tuple:
             value = (value, '')
 
-        u1 = result[1]
-        u2 = value[1]
+        u1 = get_unit_text(result)
+        u2 = get_unit_text(value)
         if op == '+':
             assert u1==u2, "Units don't match: {} and {}".format(u1, u2)
             result = (result[0] + value[0], u1)
@@ -22,10 +33,20 @@ def calculate(start, pairs):
             result = (result[0] * value[0], u1 + '*' + u2)
         elif op == '/':
             result = (result[0] / value[0], u1 + '/(' + u2 + ')')
-    if result[1]=='':
+    if type(result)==tuple and result[1]=='':
         result = result[0]
     print result
     return result
+
+def join_parens_units(parens_result, units):
+    if units==None:
+        units = ''
+    if type(parens_result)==tuple:
+        return (parens_result[0], parens_result[1]+'*'+units)
+    else:
+        return (parens_result, units)
+
+
 x = parsley.makeGrammar("""
 ws = ' '*
 digit = :x ?(x in '0123456789') -> x
@@ -39,11 +60,18 @@ exponent = ('e' | 'E') ('+' | '-')? digits
 number = spaces ('-' | -> ''):sign (intPart:ds (floatPart(sign ds)
                                                | -> int(sign + ds)))
 
-unit = <letter*>
-units = <unit (ws ('='|'={') ws unit)*>
+unit = <letter+>
+units = unit:fu (ws ('*'|'/'):op ws unit:u -> op+u)*:rem -> fu+''.join(rem)
 
 parens = '(' ws expr:e ws ')' -> e
-value = (number:e ws units:u | parens:e ws units:u) ws -> (e, u)
+
+value = (
+    (number:e ws units?:u -> (e,u))
+    |
+    (parens:p ws units:u -> join_parens_units(p,u))
+    |
+    (parens:p -> p)
+    )
 
 add = '+' ws expr2:n -> ('+', n)
 sub = '-' ws expr2:n -> ('-', n)
@@ -57,15 +85,26 @@ expr = expr2:left addsub*:right -> calculate(left, right)
 expr2 = value:left muldiv*:right -> calculate(left, right)
 
 
-""", {"calculate": calculate})
+""", {"calculate": calculate, "join_parens_units": join_parens_units})
 
 if __name__ == '__main__':
     print 'Try some operations (q to end):'
+    print
+    print '> ',
     while True:
         expr = raw_input()
         if expr.lower() == 'q':
             print 'Exiting...'
             break
-        print x(expr).expr()
+        try:
+            print x(expr).expr()
+        except:
+            print
+            print "Error: "
+            print
+            print traceback.format_exc()
+            print
+        print '> ',
+
     #print x("17+34").expr()
     #print x("18").expr()
