@@ -1,5 +1,5 @@
 # coding=utf8
-
+from __future__ import division
 import collections
 import copy
 import traceback
@@ -261,7 +261,11 @@ class Quantity(object):
         return ans
 
     def __rtruediv__(self, other):
-        return self.__truediv__(other)
+        other = self.assertQuantity(other)
+        ans = Quantity(float(other.magnitude) / float(self.magnitude))
+        uvals = self.unpack_or_default(other)
+        ans.unit = pack(self.fmt, *[y-x for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        return ans
 
     def __pow__(self, other):
         #import pdb; pdb.set_trace()
@@ -318,13 +322,13 @@ createUnit('A ampere amp amps', Quantity(1.0, dict(A=1.0)), mustCreateMetricPref
 createUnit('K kelvin', Quantity(1.0, dict(K=1.0)), mustCreateMetricPrefixes=True, unitCategory='Temperature')
 createUnit('R rankine', K*5./9.)
 
-def temperature_point_from_celsius(celsius):
+def temperature_value_from_celsius(celsius):
     return (celsius - 273.15)*K
 
 def temperature_change_from_celsius(celsius):
     return celsius * K
 
-def temperature_point_from_fahrenheit(fahrenheit):
+def temperature_value_from_fahrenheit(fahrenheit):
     return (fahrenheit + 459.67) * R
 
 def temperature_change_from_fahrenheit(fahrenheit):
@@ -336,6 +340,7 @@ createMetricPrefixes('mole')
 
 # Derived units (definitions)
 
+#import pdb; pdb.set_trace()
 createUnit('Hz hertz', 1 / s, mustCreateMetricPrefixes=True, unitCategory='Frequency')
 createUnit('N newton', kg * m / s**2, mustCreateMetricPrefixes=True, unitCategory='Force')
 createUnit('Pa pascal', N / m**2, mustCreateMetricPrefixes=True, unitCategory='Pressure')
@@ -642,7 +647,7 @@ createUnit('stick ', 0.0508 * m)
 createUnit('pm stigma  bicron_picometre', 1e-12 * m)
 createUnit('twp twip', 1.7638e-5 * m)
 createUnit('xu x_unit siegbahn', 1.0021e-13 * m )
-createUnit('yd yard_International', 0.9144 * m)
+createUnit('yd yard yard_International', 0.9144 * m)
 
 # Mass
 createUnit('AMU atomic_mass_unit_unified', 1.66053873e-27 * kg)
@@ -852,7 +857,7 @@ if __name__ == '__main__':
     J.setRepresent(as_unit=GJ, symbol='GJ')
     lookupType(200 * MW * 10 * d)
 
-    ############################################################################
+    #########################################D:\Dropbox\Technical\codelibs\workspace\ipython_notebooks###################################
 
     pbrk()
     print 'Example calculations:'
@@ -892,10 +897,10 @@ if __name__ == '__main__':
         l = math.log(10)
         x1 = l * K * Re / 18.574
         x2 = math.log(l * Re.magnitude / 5.02)
-        zj = x2 - 1/5
+        zj = x2 - 1./5.
         for i in range(2): # two iterations
-            ej = (zj + math.log(x1 + zj) - x2) / (1 + x1 + zj)
-            tol = (1 + x1 + zj + (1/2)*ej) * ej * (x1 + zj) / (1 + x1 + zj + ej + (1/3)*ej**2)
+            ej = (zj + math.log(x1 + zj) - x2) / (1. + x1 + zj)
+            tol = (1. + x1 + zj + (1./2.)*ej) * ej * (x1 + zj) / (1. + x1 + zj + ej + (1./3.)*ej**2)
             zj = zj - tol
 
         return (l / 2.0 / zj)**2
@@ -905,7 +910,7 @@ if __name__ == '__main__':
         K = roughness.convert(m) / Dh.convert(m)
         tmp = math.pow(K/3.7, 1.11) + 6.9 / Re
         inv = -1.8 * math.log10(tmp)
-        return dimensionless * (1/inv)**2
+        return dimensionless * (1./inv)**2
 
     f = friction_factor_Colebrook(1e-6*m, 1.5*inch, Re)
     fH = friction_factor_Colebrook_Haaland(1e-6*m, 1.5*inch, Re)
