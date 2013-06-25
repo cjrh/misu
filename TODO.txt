@@ -32,3 +32,6 @@ def area_circle(r):
 
 - Hide more of the methods on a unitized variable (with leading "_").
 
+- Consider: if a quantity is entered in a certain unit, make that the
+  default unit (setRepresent IOW)
+
