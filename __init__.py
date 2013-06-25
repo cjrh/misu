@@ -770,10 +770,33 @@ createUnit('speed_of_sound_in_air', 340 * m/s)
 
 # Additional derived quantities
 createUnit('kg_m3', kg/m3, unitCategory="Mass density")
+kg_m3.setRepresent(as_unit=kg_m3, symbol='kg/m3')
 
 createUnit('kg_hr', kg/hr, unitCategory="Mass flowrate")
 kg_hr.setRepresent(as_unit=kg_hr, symbol='kg/hr')
 createUnit('kmol_hr', kmol/hr, unitCategory="Molar flowrate")
+kmol_hr.setRepresent(as_unit=kmol_hr, symbol='kmol/hr')
+
+# Engineering quantities
+createUnit('kJ_kg_K', kJ/kg/K, unitCategory="Heat capacity mass")
+kJ_kg_K.setRepresent(as_unit=kJ_kg_K, symbol='kJ/kg/K')
+createUnit('kJ_kmol_K', kJ/kmol/K, unitCategory="Heat capacity mole")
+kJ_kmol_K.setRepresent(as_unit=kJ_kmol_K, symbol='kJ/kmol/K')
+
+createUnit('kJ_kg', kJ/kg, unitCategory="Specific enthalpy mass")
+kJ_kg.setRepresent(as_unit=kJ_kg, symbol='kJ/kg')
+createUnit('kJ_kmol', kJ/kmol, unitCategory="Specific enthalpy mole")
+kJ_kmol.setRepresent(as_unit=kJ_kmol, symbol='kJ/kmol')
+
+'''
+createUnit('kJ_kg_K_entropy', kJ/kg/K, unitCategory="Specific entropy mass")
+kJ_kg_K_entropy.setRepresent(as_unit=kJ_kg_K_entropy, symbol='kJ/kg/K')
+createUnit('kJ_kmol_K_entropy', kJ/kg/K, unitCategory="Specific entropy mole")
+kJ_kmol_K_entropy.setRepresent(as_unit=kJ_kmol_K_entropy, symbol='kJ/kmol/K')
+'''
+
+createUnit('W_m_K', W/m/K, unitCategory="Thermal conductivity")
+W_m_K.setRepresent(as_unit=W_m_K, symbol='W/m/K')
 
 
 def unit_signature(**_params_):
