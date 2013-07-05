@@ -35,3 +35,7 @@ def area_circle(r):
 - Consider: if a quantity is entered in a certain unit, make that the
   default unit (setRepresent IOW)
 
+- Additions:
+    ncmh Ncmh Nm3/hr scmh
+
+
