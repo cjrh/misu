@@ -285,7 +285,11 @@ class Quantity(object):
             return '{} {}'.format(self.magnitude / target_unit_Q.magnitude, target_unit)
 
     def unitCategory(self):
-        return QuantityType[self.unit]
+        if self.unit in QuantityType:
+            return QuantityType[self.unit]
+        else:
+            msg = 'The collection of units: "{}" has not been defined as a category yet.'
+            raise Exception(msg.format(str(self)))
 
     def __format__(self, format_spec):
         # Ignore the stored format_spec, use the given one.
