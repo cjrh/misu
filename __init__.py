@@ -802,6 +802,11 @@ kJ_kmol_K_entropy.setRepresent(as_unit=kJ_kmol_K_entropy, symbol='kJ/kmol/K')
 createUnit('W_m_K', W/m/K, unitCategory="Thermal conductivity")
 W_m_K.setRepresent(as_unit=W_m_K, symbol='W/m/K')
 
+createUnit('N_m', N/m, unitCategory="Surface tension")
+N_m.setRepresent(as_unit=N_m, symbol='N/m')
+
+createUnit('g_mol', g/mol, unitCategory="Molecular weight")
+g_mol.setRepresent(as_unit=g_mol, symbol='g/mol')
 
 def unit_signature(**_params_):
     def check_types(_func_, _params_ = _params_):
