@@ -366,15 +366,15 @@ createUnit('lux lx', lm / m**2, mustCreateMetricPrefixes=False, unitCategory='Lu
 ############ Big list of definitions #################################################
 
 # Time
-createUnit('min minute', 60 * s)
+createUnit('min minute mins minutes', 60 * s)
 createUnit('yr year years year_Gregorian', 31556952 * s)
 createUnit('year_Julian', 31557600 * s)
 createUnit('year_sidereal', 31558149.7632 * s)
 createUnit('year_tropical', 31556925 * s)
 createUnit('au atomic_unit_of_time', 2.418884254e-17 * s)
 createUnit('Callippic_cycle ', 2.3983776e9 * s)
-createUnit('century', 100 * years)
-createUnit('d day', 86400 * s)
+createUnit('century centuries', 100 * years)
+createUnit('d day days', 86400 * s)
 createUnit('day_sidereal', 86164.1 * s)
 createUnit('dec decade', 10 * years)
 createUnit('fn fortnight', 1209600 * s)
@@ -399,7 +399,7 @@ createUnit('shake ', 10 * ns)
 createUnit('sigma ', 1 * us)
 createUnit('Sothic_cycle ', 4.6074096e10 * s)
 createUnit('svedberg  S ', 100 * fs)
-createUnit('wk week', 604800 * s)
+createUnit('wk wks week weeks', 604800 * s)
 
 # Area
 createUnit('m2 square_metre_SI_unit', 1 * m ** 2, unitCategory='Area')
@@ -575,7 +575,7 @@ createUnit('LPM litre_per_minute', 1.6e-5 * m3/s)
 
 # Force
 createUnit('atomic_unit_of_force ',  8.23872206e-8 * N )
-createUnit('dyn dyne_cgs_unit', 1e-5 * N)
+createUnit('dyn dyne dynes dyne_cgs_unit', 1e-5 * N)
 createUnit('kgf kp Gf kilogram_force kilopond grave_force', 9.80665 * N)
 createUnit('kip kip_force kipf klbf ', 4.4482216152605e3 * N)
 createUnit('mGf milligrave_force  gravet_force gf ', 9.80665 * mN)
