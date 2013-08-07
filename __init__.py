@@ -275,6 +275,18 @@ class Quantity(object):
         ans.unit = pack(self.fmt, *[x*y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         return ans
 
+    def __cmp__(self, other):
+        other = self.assertQuantity(other)
+        self.sameunits(other)
+        if self.magnitude < other.magnitude:
+            return -1
+        elif self.magnitude == other.magnitude:
+            return 0
+        elif self.magnitude > other.magnitude:
+            return 1
+        else:
+            raise Exception('Impossible.')
+
     def convert(self, target_unit):
         if isQuantity(target_unit):
             self.sameunits(target_unit)
