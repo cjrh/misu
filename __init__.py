@@ -104,6 +104,8 @@ class Quantity(object):
     emptyunpacked = [0 for i in symbols]
     emptystruct = pack(fmt, *emptyunpacked)
 
+    __array_priority__ = 20.0
+
     def __init__(self, magnitude, valdict=None, quantityTypeName=None):
         lst=[0]*len(symbols)  # new list!
         if valdict:
@@ -184,6 +186,9 @@ class Quantity(object):
             mag = self.magnitude
             symbol = self._unitString()
             format_spec = ''
+        # Temporary fix for a numpy display issue
+        if not type(mag) in [float, int]:
+            format_spec = ''
         return mag, symbol, format_spec
 
     def __str__(self):
@@ -255,14 +260,22 @@ class Quantity(object):
 
     def __truediv__(self, other):
         other = self.assertQuantity(other)
-        ans = Quantity(float(self.magnitude) / float(other.magnitude))
+        if type(other.magnitude) == int:
+            denom = float(other.magnitude)
+        else:
+            denom = other.magnitude
+        ans = Quantity(self.magnitude / denom)
         uvals = self.unpack_or_default(other)
         ans.unit = pack(self.fmt, *[x-y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         return ans
 
     def __rtruediv__(self, other):
         other = self.assertQuantity(other)
-        ans = Quantity(float(other.magnitude) / float(self.magnitude))
+        if type(other.magnitude) == int:
+            numer = float(other.magnitude)
+        else:
+            numer = other.magnitude
+        ans = Quantity(numer / self.magnitude)
         uvals = self.unpack_or_default(other)
         ans.unit = pack(self.fmt, *[y-x for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         return ans
