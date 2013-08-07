@@ -820,7 +820,12 @@ def unit_signature(**_params_):
                 assert param.unitCategory() == category, \
                     'Parameter "{}" must be unit type "{}".'.format(name, category)
             return _func_(**kw)
+        modified.__name__ = _func_.__name__
+        modified.__doc__ = _func_.__doc__
+        # Py 3 only
+        #modified.__annotations__ = _func_.__annotations__           
         return modified
+    # For IDEs, make sure the arg lists propagate through to the user
     return check_types
 
 if __name__ == '__main__':
