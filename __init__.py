@@ -355,6 +355,9 @@ class Quantity(object):
         assert self.unitCategory() == 'Dimensionless', 'Must be dimensionless for __float__()'
         return self.magnitude
 
+    def __rshift__(self, other):
+        return self.convert(other)
+
 # Population of units data
 dimensionless = Quantity(1.0, quantityTypeName='Dimensionless')
 
