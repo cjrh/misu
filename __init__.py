@@ -57,6 +57,11 @@ class QuantityTypeDefinition(object):
 # should be presented to the user.
 RepresentCache = {}
 
+# The unit registry is a lookup list where you can find a specific
+# UnitDefinition from a particular symbol.  Note that multiple entries
+# in the UnitRegistry can point to the same unit definition, because
+# there can be many synonyms for a particular unit, e.g.
+# s, sec, secs, seconds
 UnitRegistry = {}
 class UnitDefinition(object):
     def __init__(self, symbols, quantity, notes):
@@ -131,6 +136,8 @@ class Quantity(object):
         if quantityTypeName:
             assert not self.unit in QuantityType, 'This category has already been declared.'
             QuantityType[self.unit] = quantityTypeName
+
+
 
     def setRepresent(self, as_unit=None, symbol='',
         convert_function=None, format_spec='.4g'):
@@ -862,7 +869,7 @@ def unit_signature(**_params_):
         modified.__name__ = _func_.__name__
         modified.__doc__ = _func_.__doc__
         # Py 3 only
-        #modified.__annotations__ = _func_.__annotations__           
+        #modified.__annotations__ = _func_.__annotations__
         return modified
     # For IDEs, make sure the arg lists propagate through to the user
     return check_types
