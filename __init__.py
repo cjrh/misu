@@ -19,6 +19,11 @@ def isQuantity(var):
     Returns True or False.'''
     return isinstance(var, Quantity)
 
+def test_isQuantity():
+    assert isQuantity(10*m/s)
+    assert not isQuantity(1)
+    assert not isQuantity(1.)
+
 # Quantity Type
 #
 # This is a dict that defines a particular configuration of
