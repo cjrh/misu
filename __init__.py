@@ -6,6 +6,8 @@ import traceback
 import math
 from struct import pack, unpack
 
+dbg = 0
+
 from SIprefixes import SIprefixes_sym
 
 # The Ustruct is a named tuple that stores an exponent for each
@@ -256,6 +258,8 @@ class Quantity(object):
             return copy.copy(self.emptyunpacked)
 
     def __mul__(self, other):
+        if dbg==1:
+            import pdb; pdb.set_trace()
         other = self.assertQuantity(other)
         ans = Quantity(self.magnitude * other.magnitude)
         uvals = self.unpack_or_default(other)
@@ -1035,3 +1039,6 @@ if __name__ == '__main__':
     v = 101*m/s
     print '101 m/s -> ft/hr = {}'.format(v.convert(ft/hr))
 
+    dbg=1
+    import numpy as np
+    x = np.array([1,2,3])
