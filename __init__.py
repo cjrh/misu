@@ -45,6 +45,9 @@ def addType(q, name):
     QuantityType[q.unit] = name
 
 # This is a dictionary that keeps tract of how specific Ustructs
+def test_addType():
+    addType(m**5, 'test_type')
+    assert (m**5).unit in QuantityType
 # should be presented to the user.
 RepresentCache = {}
 
