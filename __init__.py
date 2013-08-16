@@ -65,7 +65,7 @@ class UnitDefinition(object):
         self.notes = notes
         for s in self.symbols:
             try:
-                UnitRegistry[symbol] = self
+                UnitRegistry[s] = self
                 exec('global {s}; {s} = quantity'.format(s=s))
             except:
                 print 'Error create UnitRegistry entry for symbol: {}'.format(s)
