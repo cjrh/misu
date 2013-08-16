@@ -81,6 +81,8 @@ class UnitDefinition(object):
                 print
 
 def createMetricPrefixes(symbol, skipfunction=None):
+    ''' Populates the namespace with all the SI-prefixed versions of the
+    given symbol.  This uses exec() internally.'''
     for prefix in SIprefixes_sym:
         if skipfunction and skipfunction(prefix):
             continue
