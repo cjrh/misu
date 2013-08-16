@@ -59,7 +59,7 @@ RepresentCache = {}
 
 UnitRegistry = {}
 class UnitDefinition(object):
-    def __init__(self, symbols, quantity, notes, add_SI_prefixed_variables=False):
+    def __init__(self, symbols, quantity, notes):
         self.symbols = [s.strip() for s in symbols.strip().split(' ') if s.strip() != '']
         self.quantity = quantity
         self.notes = notes
