@@ -47,6 +47,13 @@ def addType(q, name):
 def test_addType():
     addType(m**5, 'test_type')
     assert (m**5).unit in QuantityType
+
+class QuantityTypeDefinition(object):
+    def __init__(self, quantity):
+        pass
+
+
+# This is a dictionary that keeps track of how specific Ustructs
 # should be presented to the user.
 RepresentCache = {}
 
