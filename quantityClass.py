@@ -6,7 +6,6 @@ Created on Wed Sep 04 22:15:13 2013
 """
 #from __future__ import absolute_import, division, print_function, unicode_literals
 import collections
-from struct import pack, unpack
 import copy
 
 dbg = 0
@@ -77,9 +76,7 @@ class EIncompatibleUnits(Exception):
     pass
 
 class Quantity(object):
-    fmt = 'f' * len(symbols)
-    emptyunpacked = [0 for i in symbols]
-    emptystruct = pack(fmt, *emptyunpacked)
+    nounits = Ustruct(*[0 for i in symbols])
     objectcache = collections.deque([]) # Use a list as a stack
     # Have to do this ourselves because of the detections
     # made in __del__()
@@ -114,12 +111,12 @@ class Quantity(object):
     def __init__(self, magnitude, valdict=None, quantityTypeName=None):
         # This is slower:
         # lst=copy.copy(self.emptyunpacked)  # new list!
-        lst=[0]*len(symbols)  # new list!
+        self.magnitude = magnitude        
         if valdict:
-            for k in valdict:
-                lst[symbols.index(k)] = valdict[k]
-        self.magnitude = magnitude
-        self.unit = pack(self.fmt, *lst)
+            self.unit = Ustruct(*[valdict.get(s) or 0 for s in symbols])
+        else:
+            self.unit = self.nounits
+        
         # Add given quantityTypeName to external dict
         if quantityTypeName:
             #assert not self.unit in QuantityType, 'This category has already been declared.'
@@ -163,7 +160,7 @@ class Quantity(object):
             format_spec=format_spec)
 
     def units(self):
-        return Ustruct._make(unpack(self.fmt,self.unit))
+        return self.unit
 
     def _unitString(self):
         if self.unit in RepresentCache:
@@ -221,7 +218,7 @@ class Quantity(object):
             raise EIncompatibleUnits('Incompatible units: {} and {}'.format(self, other))
 
     def assertQuantity(self, other):
-        if isQuantity(other):
+        if hasattr(other, 'magnitude'):
             return other
         else:
             return Quantity(other)
@@ -230,7 +227,7 @@ class Quantity(object):
         other = self.assertQuantity(other)
         self.sameunits(other)
         ans = Quantity(self.magnitude + other.magnitude)
-        ans.unit = copy.copy(self.unit)
+        ans.unit = self.unit
         return ans
 
     def __radd__(self, other):
@@ -240,7 +237,7 @@ class Quantity(object):
         other = self.assertQuantity(other)
         self.sameunits(other)
         ans = Quantity(self.magnitude - other.magnitude)
-        ans.unit = copy.copy(self.unit)
+        ans.unit = self.unit
         return ans
 
     def __rsub__(self, other):
@@ -248,10 +245,10 @@ class Quantity(object):
 
     def unpack_or_default(self, other):
         try:
-            return unpack(self.fmt, other.unit)
+            return other.unit
         except:
             #return copy.copy(self.emptyunpacked)
-            return [0]*len(symbols)        
+            return self.nounits        
 #        if isQuantity(other):
 #            return unpack(self.fmt, other.unit)
 #        else:
@@ -259,12 +256,11 @@ class Quantity(object):
 #            return [0]*len(symbols)
 
     def __mul__(self, other):
-        if dbg==1:
-            import pdb; pdb.set_trace()
         other = self.assertQuantity(other)
         ans = Quantity(self.magnitude * other.magnitude)
         uvals = self.unpack_or_default(other)
-        ans.unit = pack(self.fmt, *[x+y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        #ans.unit = pack(self.fmt, *[x+y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        ans.unit = Ustruct(*[x+y for x,y in zip(self.unit, other.unit)])
         return ans
 
     def __rmul__(self, other):
@@ -274,14 +270,16 @@ class Quantity(object):
         other = self.assertQuantity(other)
         ans = Quantity(self.magnitude / other.magnitude)
         uvals = self.unpack_or_default(other)
-        ans.unit = pack(self.fmt, *[x-y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        #ans.unit = pack(self.fmt, *[x-y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        ans.unit = Ustruct(*[x-y for x,y in zip(self.unit, other.unit)])
         return ans
 
     def __rdiv__(self, other):
         other = self.assertQuantity(other)
         ans = Quantity(other.magnitude / self.magnitude)
         uvals = self.unpack_or_default(other)
-        ans.unit = pack(self.fmt, *[y-x for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        #ans.unit = pack(self.fmt, *[y-x for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        ans.unit = Ustruct(*[y-x for x,y in zip(self.unit, other.unit)])
         return ans
 
     def __truediv__(self, other):
@@ -292,7 +290,8 @@ class Quantity(object):
             denom = other.magnitude
         ans = Quantity(self.magnitude / denom)
         uvals = self.unpack_or_default(other)
-        ans.unit = pack(self.fmt, *[x-y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        #ans.unit = pack(self.fmt, *[x-y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        ans.unit = Ustruct(*[x-y for x,y in zip(self.unit, other.unit)])
         return ans
 
     def __rtruediv__(self, other):
@@ -303,20 +302,23 @@ class Quantity(object):
             numer = other.magnitude
         ans = Quantity(numer / self.magnitude)
         uvals = self.unpack_or_default(other)
-        ans.unit = pack(self.fmt, *[y-x for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        #ans.unit = pack(self.fmt, *[y-x for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        ans.unit = Ustruct(*[y-x for x,y in zip(self.unit, other.unit)])
         return ans
 
     def __pow__(self, other):
         #import pdb; pdb.set_trace()
         assert not isQuantity(other), 'The exponent must not be a quantity!'
         ans = Quantity(self.magnitude ** other)
+        #uvals = [other for x in symbols]
+        #ans.unit = pack(self.fmt, *[x*y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         uvals = [other for x in symbols]
-        ans.unit = pack(self.fmt, *[x*y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
+        ans.unit = Ustruct(*[x*y for x,y in zip(self.unit, uvals)])        
         return ans
 
     def __neg__(self):
         ans = Quantity(-self.magnitude)
-        ans.unit = copy.copy(self.unit)
+        ans.unit = self.unit
         return ans
 
     def __cmp__(self, other):
@@ -376,3 +378,9 @@ class Quantity(object):
     def __rshift__(self, other):
         return self.convert(other)
 
+if __name__ == '__main__':
+    m = Quantity(1.0, {'m':1.0}, 'Length')
+    kg = Quantity(1.0, {'kg':1.0}, 'Mass')
+    rho = 1000*kg/m**3
+    print rho
+    
