@@ -27,12 +27,14 @@ plain_setup = '''def calc(mass, volume, time):
 '''
 plain_code = '''calc(10.0, 5.0, 20.0)'''
 
+COUNT = 10000
+
 # Unity
 print('{:15}: {:>8.4g} s'.format(
-    'Unity', timeit.timeit(unity_code, unity_setup, number=10000)))
+    'Unity', timeit.timeit(unity_code, unity_setup, number=COUNT)))
 # Quantities
 print('{:15}: {:>8.4g} s'.format(
-    'Quantities', timeit.timeit(pq_code, pq_setup, number=10000)))
+    'Quantities', timeit.timeit(pq_code, pq_setup, number=COUNT)))
 # Plain
 print('{:15}: {:>8.4g} s'.format(
-    'Pure Python', timeit.timeit(plain_code, plain_setup, number=10000)))
+    'Pure Python', timeit.timeit(plain_code, plain_setup, number=COUNT)))
