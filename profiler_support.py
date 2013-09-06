@@ -8,5 +8,15 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from unity import *
 
-for x in range(10000):
-    y = (100*kg/m**3) * (4000*m**3) / (210*g/cm**3 + 5*kg/m**3)
+def testu():
+    for x in xrange(100000):
+        y = (100*kg/m**3) * (4000*m**3) / (210*g/cm**3 + x*kg/m**3)
+
+def test():
+    for x in xrange(100000):
+        y = (100) * (4000) / (210 + x)
+
+
+if __name__ == '__main__':
+    test()
+    testu()
