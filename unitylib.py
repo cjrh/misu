@@ -3,7 +3,7 @@ from __future__ import division
 import traceback
 import math
 
-from quantityClass import *
+from cquantityClass import *
 
 from SIprefixes import SIprefixes_sym
 
