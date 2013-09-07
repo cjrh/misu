@@ -5,6 +5,7 @@ Created on Wed Sep 04 22:15:13 2013
 @author: Caleb
 """
 #from __future__ import absolute_import, division, print_function, unicode_literals
+import traceback
 import collections
 import copy
 
@@ -76,51 +77,25 @@ class EIncompatibleUnits(Exception):
     pass
 
 class Quantity(object):
-    nounits = Ustruct(*[0 for i in symbols])
-    objectcache = collections.deque([]) # Use a list as a stack
-    # Have to do this ourselves because of the detections
-    # made in __del__()
-    objectcache_maxlen = 10000
-
+    _nounits = Ustruct(*[0 for i in symbols])
     __array_priority__ = 20.0
-
-    def __new__(cls, magnitude, valdict=None, quantityTypeName=None):
-        if len(cls.objectcache)>0:
-            #import pdb; pdb.set_trace()
-            pass
-        try:
-            x = cls.objectcache.pop()
-        except IndexError:
-            x = super(Quantity, cls).__new__(cls)            
-        x.__init__(magnitude, valdict, quantityTypeName)
-        x.cacheable = True # instance is cacheable
-        #_cache[i] = x
-        return x
-        
-    def __del__(self):
-        # Instead of destruction, save the instance for reuse
-        #import pdb; pdb.set_trace()
-        if self.cacheable:
-            if len(self.objectcache) == self.objectcache_maxlen:
-                # Cache is full. Delete old entries.
-                # TODO: must compare speed of pop vs popleft here.
-                x = self.objectcache.popleft()
-                x.cacheable = False # Must not enter objectcache on next __del__()
-            self.objectcache.append(self)
+    storage = list(_nounits)
 
     def __init__(self, magnitude, valdict=None, quantityTypeName=None):
         # This is slower:
         # lst=copy.copy(self.emptyunpacked)  # new list!
-        self.magnitude = magnitude        
+        self.magnitude = magnitude
         if valdict:
             self.unit = Ustruct(*[valdict.get(s) or 0 for s in symbols])
         else:
-            self.unit = self.nounits
-        
+            self.unit = self._nounits
+
         # Add given quantityTypeName to external dict
         if quantityTypeName:
             #assert not self.unit in QuantityType, 'This category has already been declared.'
             QuantityType[self.unit] = quantityTypeName
+
+
 
     def selfPrint(self):
         #import pdb; pdb.set_trace()
@@ -247,20 +222,23 @@ class Quantity(object):
         try:
             return other.unit
         except:
-            #return copy.copy(self.emptyunpacked)
-            return self.nounits        
-#        if isQuantity(other):
-#            return unpack(self.fmt, other.unit)
-#        else:
-#            #return copy.copy(self.emptyunpacked)
-#            return [0]*len(symbols)
+            return self._nounits
 
+    def add_tuples(self, a, b):
+        return Ustruct(*[x+y for x,y in zip(a, b)])
+
+    def add_tuples_b(self, a, b):
+        self.storage[:] = [x + y for x, y in zip(a,b)]
+        return Ustruct(*self.storage)
+
+
+    #@profile
     def __mul__(self, other):
         other = self.assertQuantity(other)
         ans = Quantity(self.magnitude * other.magnitude)
         uvals = self.unpack_or_default(other)
-        #ans.unit = pack(self.fmt, *[x+y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         ans.unit = Ustruct(*[x+y for x,y in zip(self.unit, other.unit)])
+        #ans.unit = self.add_tuples(self.unit, other.unit)
         return ans
 
     def __rmul__(self, other):
@@ -270,7 +248,6 @@ class Quantity(object):
         other = self.assertQuantity(other)
         ans = Quantity(self.magnitude / other.magnitude)
         uvals = self.unpack_or_default(other)
-        #ans.unit = pack(self.fmt, *[x-y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         ans.unit = Ustruct(*[x-y for x,y in zip(self.unit, other.unit)])
         return ans
 
@@ -278,7 +255,6 @@ class Quantity(object):
         other = self.assertQuantity(other)
         ans = Quantity(other.magnitude / self.magnitude)
         uvals = self.unpack_or_default(other)
-        #ans.unit = pack(self.fmt, *[y-x for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         ans.unit = Ustruct(*[y-x for x,y in zip(self.unit, other.unit)])
         return ans
 
@@ -290,7 +266,6 @@ class Quantity(object):
             denom = other.magnitude
         ans = Quantity(self.magnitude / denom)
         uvals = self.unpack_or_default(other)
-        #ans.unit = pack(self.fmt, *[x-y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         ans.unit = Ustruct(*[x-y for x,y in zip(self.unit, other.unit)])
         return ans
 
@@ -302,7 +277,6 @@ class Quantity(object):
             numer = other.magnitude
         ans = Quantity(numer / self.magnitude)
         uvals = self.unpack_or_default(other)
-        #ans.unit = pack(self.fmt, *[y-x for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         ans.unit = Ustruct(*[y-x for x,y in zip(self.unit, other.unit)])
         return ans
 
@@ -310,10 +284,8 @@ class Quantity(object):
         #import pdb; pdb.set_trace()
         assert not isQuantity(other), 'The exponent must not be a quantity!'
         ans = Quantity(self.magnitude ** other)
-        #uvals = [other for x in symbols]
-        #ans.unit = pack(self.fmt, *[x*y for x,y in zip(unpack(self.fmt, self.unit), uvals)])
         uvals = [other for x in symbols]
-        ans.unit = Ustruct(*[x*y for x,y in zip(self.unit, uvals)])        
+        ans.unit = Ustruct(*[x*y for x,y in zip(self.unit, uvals)])
         return ans
 
     def __neg__(self):
@@ -379,8 +351,11 @@ class Quantity(object):
         return self.convert(other)
 
 if __name__ == '__main__':
-    m = Quantity(1.0, {'m':1.0}, 'Length')
-    kg = Quantity(1.0, {'kg':1.0}, 'Mass')
-    rho = 1000*kg/m**3
-    print rho
-    
+#    m = Quantity(1.0, {'m':1.0}, 'Length')
+#    kg = Quantity(1.0, {'kg':1.0}, 'Mass')
+#    rho = 1000*kg/m**3
+#    print rho
+    for i in xrange(100000):
+        m = Quantity(1.0, {'m':1.0}, 'Length')
+        kg = Quantity(1.0, {'kg':1.0}, 'Mass')
+        rho = 1000*kg/m**3
