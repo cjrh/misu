@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # cython: profile=True
 """
 Created on Wed Sep 04 22:15:13 2013
@@ -7,8 +6,9 @@ Created on Wed Sep 04 22:15:13 2013
 """
 #from __future__ import absolute_import, division, print_function, unicode_literals
 cimport cython
-from cpython.array cimport array, clone
-from cpython cimport tuple, list, dict
+#cimport cpython.array
+from cpython.array cimport array, copy
+#from cython.view import array
 
 # Quantity Type
 #
@@ -21,20 +21,17 @@ from cpython cimport tuple, list, dict
 #   m^3: 'Volume'
 #   m/s: 'Velocity'
 #   kg/s: 'Mass flowrate'
-QuantityType = {}
-def addType(q, name):
-    if q.unit in QuantityType:
-        raise Exception('This unit def already registered, owned by: {}'.format(
-            QuantityType[q.unit]))
-    QuantityType[q.unit] = name
-
-
-class QuantityTypeDefinition(object):
-    def __init__(self, quantity):
-        pass
 
 # Forward declaration
 cdef class Quantity
+
+QuantityType = {}
+cpdef addType(Quantity q, char* name):
+    if q.unit_as_tuple() in QuantityType:
+        raise Exception('This unit def already registered, owned by: {}'.format(
+            QuantityType[q.unit_as_tuple()]))
+    QuantityType[q.unit_as_tuple()] = name
+
 
 cdef inline Quantity assertQuantity(x):
     if isinstance(x, Quantity):
@@ -42,7 +39,6 @@ cdef inline Quantity assertQuantity(x):
     else:
         return Quantity.__new__(Quantity, x)
 
-#cdef char* *symbols = ['m', 'kg', 's', 'A', 'K', 'ca', 'mole']
 cdef list symbols = ['m', 'kg', 's', 'A', 'K', 'ca', 'mole']
 
 cdef inline int isQuantity(var):
@@ -76,25 +72,31 @@ class UnitDefinition(object):
 class EIncompatibleUnits(Exception):
     pass
 
-@cython.freelist(1000)
-cdef class Quantity(object):
-    cdef public double magnitude
-    cdef readonly tuple unit
-    cdef tuple _nounits
+cdef array _nou  = array('d', [0,0,0,0,0,0,0])
+
+@cython.freelist(8)
+cdef class Quantity:
+    cdef readonly double magnitude
+    cdef array unit
     __array_priority__ = 20.0
 
-    def __cinit__(self, double magnitude, dict valdict=None, str quantityTypeName=None):
-        self._nounits = (0.0,0.0,0.0,0.0,0.0,0.0,0.0)
+    def __cinit__(self, double magnitude, dict valdict=None, char *quantityTypeName=''):
         self.magnitude = magnitude
+        
         if valdict != None:
-            self.unit = tuple([valdict.get(s) or 0 for s in symbols])
+            self.unit = array('d', [valdict.get(s) or 0 for s in symbols])
         else:
-            self.unit = self._nounits
+            #self.unit = clone(self._nounits, 7, 0)
+            #self.unit = array('d', [0,0,0,0,0,0,0])
+            self.unit = copy(_nou)
 
         # Add given quantityTypeName to external dict
-        if quantityTypeName != None:
+        if len(quantityTypeName) > 0:
             #assert not self.unit in QuantityType, 'This category has already been declared.'
-            QuantityType[self.unit] = quantityTypeName
+            QuantityType[self.unit_as_tuple()] = quantityTypeName
+
+    cdef inline tuple unit_as_tuple(self):
+        return tuple(self.unit.tolist())
 
     def selfPrint(self):
         dict_contents = ','.join(['{}={}'.format(s,v) for s,v in dict(zip(symbols, self.units())).iteritems() if v != 0.0])
@@ -127,7 +129,7 @@ cdef class Quantity(object):
             def proportional_conversion(instance, _):
                 return instance.convert(as_unit)
             convert_function = proportional_conversion
-        RepresentCache[self.unit] = dict(
+        RepresentCache[tuple(self.unit)] = dict(
             convert_function=convert_function,
             symbol=symbol,
             format_spec=format_spec)
@@ -136,8 +138,8 @@ cdef class Quantity(object):
         return self.unit
 
     def _unitString(self):
-        if self.unit in RepresentCache:
-            r = RepresentCache[self.unit]
+        if tuple(self.unit) in RepresentCache:
+            r = RepresentCache[tuple(self.unit)]
             ret = '{}'.format(r['symbol'])
             return ret
         else:
@@ -146,22 +148,22 @@ cdef class Quantity(object):
             return ret
 
     def _getmagnitude(self):
-        if self.unit in RepresentCache:
-            r = RepresentCache[self.unit]
+        if tuple(self.unit) in RepresentCache:
+            r = RepresentCache[tuple(self.unit)]
             return r['convert_function'](self, self.magnitude)
         else:
             return self.magnitude
 
     def _getsymbol(self):
-        if self.unit in RepresentCache:
-            r = RepresentCache[self.unit]
+        if tuple(self.unit) in RepresentCache:
+            r = RepresentCache[tuple(self.unit)]
             return r['symbol']
         else:
             return self._unitString()
 
     def _getRepresentTuple(self):
-        if self.unit in RepresentCache:
-            r = RepresentCache[self.unit]
+        if tuple(self.unit) in RepresentCache:
+            r = RepresentCache[tuple(self.unit)]
             mag = r['convert_function'](self, self.magnitude)
             symbol = r['symbol']
             format_spec = r['format_spec']
@@ -197,7 +199,7 @@ cdef class Quantity(object):
         xq.sameunits(yq)
         #cdef Quantity ans = Quantity(xq.magnitude + yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude + yq.magnitude)
-        ans.unit = xq.unit
+        ans.unit[:] = copy(xq.unit)
         return ans
 
     def __sub__(x, y):
@@ -206,22 +208,23 @@ cdef class Quantity(object):
         xq.sameunits(yq)
         #cdef Quantity ans = Quantity(xq.magnitude - yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude - yq.magnitude)
-        ans.unit = xq.unit
+        ans.unit[:] = copy(xq.unit)
         return ans
 
     def unpack_or_default(self, other):
         try:
             return other.unit
         except:
-            return self._nounits
+            return _nou
 
-    #@profile
     def __mul__(x, y):
         cdef Quantity xq = assertQuantity(x)
         cdef Quantity yq = assertQuantity(y)
-        #cdef Quantity ans = Quantity(xq.magnitude * yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude * yq.magnitude)
-        ans.unit = tuple([x+y for x,y in zip(xq.unit, yq.unit)])
+        cdef int i
+        for i from 0 <= i < 7:
+            ans.unit[i] = xq.unit[i] + yq.unit[i]
+        #ans.unit = array('d', [x+y for x,y in zip(xq.unit, yq.unit)])
         return ans
 
     def __div__(x,y):
@@ -229,7 +232,7 @@ cdef class Quantity(object):
         cdef Quantity yq = assertQuantity(y)
         #cdef Quantity ans = Quantity(xq.magnitude / yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude / yq.magnitude)
-        ans.unit = tuple([x-y for x,y in zip(xq.unit, yq.unit)])
+        ans.unit = array('d', [x-y for x,y in zip(xq.unit, yq.unit)])
         return ans
 
     def __truediv__(x, y):
@@ -241,22 +244,26 @@ cdef class Quantity(object):
 #            denom = other.magnitude
         #cdef Quantity ans = Quantity(xq.magnitude / yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude / yq.magnitude)
-        ans.unit = tuple([x-y for x,y in zip(xq.unit, yq.unit)])
+        cdef int i
+        for i from 0 <= i < 7:
+            ans.unit[i] = xq.unit[i] - yq.unit[i]
+        #ans.unit = array('d', [x-y for x,y in zip(xq.unit, yq.unit)])
         return ans
 
     def __pow__(x, y, z):
         cdef Quantity xq = assertQuantity(x)
         assert not isQuantity(y), 'The exponent must not be a quantity!'
-        #cdef Quantity ans = Quantity(xq.magnitude ** y.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude ** y)
-        uvals = [y for s in symbols]
-        ans.unit = tuple([x*y for x,y in zip(xq.unit, uvals)])
+        cdef int i
+        for i from 0 <= i < 7:
+            ans.unit[i] = xq.unit[i] * y
+        #ans.unit = array('d', [x*y for x,y in zip(xq.unit, uvals)])
         return ans
 
     def __neg__(self):
         #cdef Quantity ans = Quantity(-self.magnitude)
         cdef Quantity ans = Quantity.__new__(-self.magnitude)
-        ans.unit = self.unit
+        ans.unit[:] = copy(self.unit)
         return ans
 
     def __cmp__(x, y):
@@ -282,8 +289,8 @@ cdef class Quantity(object):
             return '{} {}'.format(self.magnitude / target_unit_Q.magnitude, target_unit)
 
     def unitCategory(self):
-        if self.unit in QuantityType:
-            return QuantityType[self.unit]
+        if tuple(self.unit) in QuantityType:
+            return QuantityType[tuple(self.unit)]
         else:
             msg = 'The collection of units: "{}" has not been defined as a category yet.'
             raise Exception(msg.format(str(self)))
