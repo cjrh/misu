@@ -7,9 +7,8 @@ Created on Wed Sep 04 22:15:13 2013
 """
 #from __future__ import absolute_import, division, print_function, unicode_literals
 cimport cython
-
-#import traceback
-import collections
+from cpython.array cimport array, clone
+from cpython cimport tuple, list, dict
 
 # Quantity Type
 #
@@ -22,8 +21,6 @@ import collections
 #   m^3: 'Volume'
 #   m/s: 'Velocity'
 #   kg/s: 'Mass flowrate'
-#
-# Note that the key is the PACKED UNIT STRUCT (Ustruct)
 QuantityType = {}
 def addType(q, name):
     if q.unit in QuantityType:
@@ -45,19 +42,14 @@ cdef inline Quantity assertQuantity(x):
     else:
         return Quantity.__new__(Quantity, x)
 
-# The Ustruct is a named tuple that stores an exponent for each
-# fundamental SI unit.  Note that the exponents are not required to
-# be integer.
+#cdef char* *symbols = ['m', 'kg', 's', 'A', 'K', 'ca', 'mole']
 cdef list symbols = ['m', 'kg', 's', 'A', 'K', 'ca', 'mole']
-Ustruct = collections.namedtuple('Ustruct', ' '.join(symbols))
 
 cdef inline int isQuantity(var):
     ''' checks whether var is an instance of type 'Quantity'.
     Returns True or False.'''
     return isinstance(var, Quantity)
 
-# This is a dictionary that keeps track of how specific Ustructs
-# should be presented to the user.
 RepresentCache = {}
 
 # The unit registry is a lookup list where you can find a specific
@@ -87,14 +79,15 @@ class EIncompatibleUnits(Exception):
 @cython.freelist(1000)
 cdef class Quantity(object):
     cdef public double magnitude
-    cdef readonly object unit
-    _nounits = Ustruct(*[0 for i in symbols])
+    cdef readonly tuple unit
+    cdef tuple _nounits
     __array_priority__ = 20.0
 
     def __cinit__(self, double magnitude, dict valdict=None, str quantityTypeName=None):
+        self._nounits = (0.0,0.0,0.0,0.0,0.0,0.0,0.0)
         self.magnitude = magnitude
         if valdict != None:
-            self.unit = Ustruct(*[valdict.get(s) or 0 for s in symbols])
+            self.unit = tuple([valdict.get(s) or 0 for s in symbols])
         else:
             self.unit = self._nounits
 
@@ -104,7 +97,7 @@ cdef class Quantity(object):
             QuantityType[self.unit] = quantityTypeName
 
     def selfPrint(self):
-        dict_contents = ','.join(['{}={}'.format(s,v) for s,v in self.units()._asdict().iteritems() if v != 0.0])
+        dict_contents = ','.join(['{}={}'.format(s,v) for s,v in dict(zip(symbols, self.units())).iteritems() if v != 0.0])
         return 'Quantity({}, dict({}))'.format(self.magnitude, dict_contents)
 
     def setRepresent(self, as_unit=None, symbol='',
@@ -145,11 +138,12 @@ cdef class Quantity(object):
     def _unitString(self):
         if self.unit in RepresentCache:
             r = RepresentCache[self.unit]
-            return '{}'.format(r['symbol'])
+            ret = '{}'.format(r['symbol'])
+            return ret
         else:
-            ut = self.units()._asdict()
-            text = ' '.join(['{}^{}'.format(k,v) for k, v in ut.items() if v != 0])
-            return '{}'.format(text)
+            text = ' '.join(['{}^{}'.format(k,v) for k, v in zip(symbols, self.units()) if v != 0])
+            ret = '{}'.format(text)
+            return ret
 
     def _getmagnitude(self):
         if self.unit in RepresentCache:
@@ -227,7 +221,7 @@ cdef class Quantity(object):
         cdef Quantity yq = assertQuantity(y)
         #cdef Quantity ans = Quantity(xq.magnitude * yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude * yq.magnitude)
-        ans.unit = Ustruct(*[x+y for x,y in zip(xq.unit, yq.unit)])
+        ans.unit = tuple([x+y for x,y in zip(xq.unit, yq.unit)])
         return ans
 
     def __div__(x,y):
@@ -235,7 +229,7 @@ cdef class Quantity(object):
         cdef Quantity yq = assertQuantity(y)
         #cdef Quantity ans = Quantity(xq.magnitude / yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude / yq.magnitude)
-        ans.unit = Ustruct(*[x-y for x,y in zip(xq.unit, yq.unit)])
+        ans.unit = tuple([x-y for x,y in zip(xq.unit, yq.unit)])
         return ans
 
     def __truediv__(x, y):
@@ -247,7 +241,7 @@ cdef class Quantity(object):
 #            denom = other.magnitude
         #cdef Quantity ans = Quantity(xq.magnitude / yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude / yq.magnitude)
-        ans.unit = Ustruct(*[x-y for x,y in zip(xq.unit, yq.unit)])
+        ans.unit = tuple([x-y for x,y in zip(xq.unit, yq.unit)])
         return ans
 
     def __pow__(x, y, z):
@@ -256,7 +250,7 @@ cdef class Quantity(object):
         #cdef Quantity ans = Quantity(xq.magnitude ** y.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude ** y)
         uvals = [y for s in symbols]
-        ans.unit = Ustruct(*[x*y for x,y in zip(xq.unit, uvals)])
+        ans.unit = tuple([x*y for x,y in zip(xq.unit, uvals)])
         return ans
 
     def __neg__(self):
