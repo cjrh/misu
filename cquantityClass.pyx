@@ -277,9 +277,10 @@ cdef class Quantity:
 
     def __neg__(self):
         #cdef Quantity ans = Quantity(-self.magnitude)
-        cdef Quantity ans = Quantity.__new__(-self.magnitude)
-        cdef double[:] view = ans.unit
-        view[:] = self.unit
+        cdef Quantity ans = Quantity.__new__(Quantity, -self.magnitude)
+        cdef int i
+        for i from 0 <= i < 7:
+            ans.unit[i] = self.unit[i]
         return ans
 
     def __cmp__(x, y):
