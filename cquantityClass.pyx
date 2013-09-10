@@ -25,6 +25,10 @@ from cpython.array cimport array, copy
 # Forward declaration
 cdef class Quantity
 
+ctypedef fused Quantity_or_float:
+    cython.float
+    Quantity
+
 QuantityType = {}
 cpdef addType(Quantity q, char* name):
     if q.unit_as_tuple() in QuantityType:
@@ -37,6 +41,11 @@ cdef inline Quantity assertQuantity(x):
         return x
     else:
         return Quantity.__new__(Quantity, x)
+#    if x is Quantity:
+#        return x
+#    else:
+#        return Quantity.__new__(Quantity, <double>x)
+
 
 cdef list symbols = ['m', 'kg', 's', 'A', 'K', 'ca', 'mole']
 
@@ -76,19 +85,23 @@ cdef array _nou  = array('d', [0,0,0,0,0,0,0])
 @cython.freelist(8)
 cdef class Quantity:
     cdef readonly double magnitude
-    cdef array unit
+    cdef double unit[7]
     __array_priority__ = 20.0
 
     def __cinit__(self, double magnitude):
         self.magnitude = magnitude
-        self.unit = copy(_nou)
+        self.unit[:] = [0,0,0,0,0,0,0]
 
     cdef inline tuple unit_as_tuple(self):
-        return tuple(self.unit.tolist())
+        return tuple(self.units())
+        #return tuple(self.unit.tolist())
 
     def setValDict(self, dict valdict):
-        if valdict != None:
-            self.unit[:] = array('d', [valdict.get(s) or 0 for s in symbols])
+        cdef int i
+        cdef list values
+        values = [valdict.get(s) or 0 for s in symbols]
+        for i from 0 <= i < 7:
+            self.unit[i] = values[i]
 
     def selfPrint(self):
         dict_contents = ','.join(['{}={}'.format(s,v) for s,v in dict(zip(symbols, self.units())).iteritems() if v != 0.0])
@@ -121,17 +134,21 @@ cdef class Quantity:
             def proportional_conversion(instance, _):
                 return instance.convert(as_unit)
             convert_function = proportional_conversion
-        RepresentCache[tuple(self.unit)] = dict(
+        RepresentCache[self.unit_as_tuple()] = dict(
             convert_function=convert_function,
             symbol=symbol,
             format_spec=format_spec)
 
     def units(self):
-        return self.unit
+        cdef list out = []
+        cdef int i
+        for i in range(7):
+            out.append(self.unit[i])
+        return out
 
     def _unitString(self):
-        if tuple(self.unit) in RepresentCache:
-            r = RepresentCache[tuple(self.unit)]
+        if self.unit_as_tuple() in RepresentCache:
+            r = RepresentCache[self.unit_as_tuple()]
             ret = '{}'.format(r['symbol'])
             return ret
         else:
@@ -140,22 +157,22 @@ cdef class Quantity:
             return ret
 
     def _getmagnitude(self):
-        if tuple(self.unit) in RepresentCache:
-            r = RepresentCache[tuple(self.unit)]
+        if self.unit_as_tuple() in RepresentCache:
+            r = RepresentCache[self.unit_as_tuple()]
             return r['convert_function'](self, self.magnitude)
         else:
             return self.magnitude
 
     def _getsymbol(self):
-        if tuple(self.unit) in RepresentCache:
-            r = RepresentCache[tuple(self.unit)]
+        if self.unit_as_tuple() in RepresentCache:
+            r = RepresentCache[self.unit_as_tuple()]
             return r['symbol']
         else:
             return self._unitString()
 
     def _getRepresentTuple(self):
-        if tuple(self.unit) in RepresentCache:
-            r = RepresentCache[tuple(self.unit)]
+        if self.unit_as_tuple() in RepresentCache:
+            r = RepresentCache[self.unit_as_tuple()]
             mag = r['convert_function'](self, self.magnitude)
             symbol = r['symbol']
             format_spec = r['format_spec']
@@ -180,8 +197,10 @@ cdef class Quantity:
         return str(self)
 
     cdef inline sameunits(Quantity self, Quantity other):
-        if not self.unit == other.unit:            
-            raise EIncompatibleUnits('Incompatible units: {} and {}'.format(self, other))
+        cdef int i
+        for i from 0 <= i < 7:
+            if self.unit[i] != other.unit[i]:            
+                raise EIncompatibleUnits('Incompatible units: {} and {}'.format(self, other))
 
     def __add__(x, y):
         cdef Quantity xq = assertQuantity(x)
@@ -189,7 +208,9 @@ cdef class Quantity:
         xq.sameunits(yq)
         #cdef Quantity ans = Quantity(xq.magnitude + yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude + yq.magnitude)
-        ans.unit[:] = copy(xq.unit)
+        cdef int i
+        for i from 0 <= i < 7:
+            ans.unit[i] = xq.unit[i]
         return ans
 
     def __sub__(x, y):
@@ -198,7 +219,9 @@ cdef class Quantity:
         xq.sameunits(yq)
         #cdef Quantity ans = Quantity(xq.magnitude - yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude - yq.magnitude)
-        ans.unit[:] = copy(xq.unit)
+        cdef int i
+        for i from 0 <= i < 7:
+            ans.unit[i] = xq.unit[i]
         return ans
 
     def unpack_or_default(self, other):
@@ -222,7 +245,9 @@ cdef class Quantity:
         cdef Quantity yq = assertQuantity(y)
         #cdef Quantity ans = Quantity(xq.magnitude / yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude / yq.magnitude)
-        ans.unit = array('d', [x-y for x,y in zip(xq.unit, yq.unit)])
+        cdef int i
+        for i from 0 <= i < 7:
+            ans.unit[i] = xq.unit[i] - yq.unit[i]
         return ans
 
     def __truediv__(x, y):
@@ -230,7 +255,7 @@ cdef class Quantity:
         cdef Quantity yq = assertQuantity(y)
 #        if type(other.magnitude) == int:
 #            denom = float(other.magnitude)
-#        else:
+#        else:xq.unit
 #            denom = other.magnitude
         #cdef Quantity ans = Quantity(xq.magnitude / yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude / yq.magnitude)
@@ -253,7 +278,8 @@ cdef class Quantity:
     def __neg__(self):
         #cdef Quantity ans = Quantity(-self.magnitude)
         cdef Quantity ans = Quantity.__new__(-self.magnitude)
-        ans.unit[:] = copy(self.unit)
+        cdef double[:] view = ans.unit
+        view[:] = self.unit
         return ans
 
     def __cmp__(x, y):
@@ -279,8 +305,8 @@ cdef class Quantity:
             return '{} {}'.format(self.magnitude / target_unit_Q.magnitude, target_unit)
 
     def unitCategory(self):
-        if tuple(self.unit) in QuantityType:
-            return QuantityType[tuple(self.unit)]
+        if self.unit_as_tuple() in QuantityType:
+            return QuantityType[self.unit_as_tuple()]
         else:
             msg = 'The collection of units: "{}" has not been defined as a category yet.'
             raise Exception(msg.format(str(self)))
