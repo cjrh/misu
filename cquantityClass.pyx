@@ -32,7 +32,6 @@ cpdef addType(Quantity q, char* name):
             QuantityType[q.unit_as_tuple()]))
     QuantityType[q.unit_as_tuple()] = name
 
-
 cdef inline Quantity assertQuantity(x):
     if isinstance(x, Quantity):
         return x
@@ -80,23 +79,16 @@ cdef class Quantity:
     cdef array unit
     __array_priority__ = 20.0
 
-    def __cinit__(self, double magnitude, dict valdict=None, char *quantityTypeName=''):
+    def __cinit__(self, double magnitude):
         self.magnitude = magnitude
-        
-        if valdict != None:
-            self.unit = array('d', [valdict.get(s) or 0 for s in symbols])
-        else:
-            #self.unit = clone(self._nounits, 7, 0)
-            #self.unit = array('d', [0,0,0,0,0,0,0])
-            self.unit = copy(_nou)
-
-        # Add given quantityTypeName to external dict
-        if len(quantityTypeName) > 0:
-            #assert not self.unit in QuantityType, 'This category has already been declared.'
-            QuantityType[self.unit_as_tuple()] = quantityTypeName
+        self.unit = copy(_nou)
 
     cdef inline tuple unit_as_tuple(self):
         return tuple(self.unit.tolist())
+
+    def setValDict(self, dict valdict):
+        if valdict != None:
+            self.unit[:] = array('d', [valdict.get(s) or 0 for s in symbols])
 
     def selfPrint(self):
         dict_contents = ','.join(['{}={}'.format(s,v) for s,v in dict(zip(symbols, self.units())).iteritems() if v != 0.0])
@@ -188,9 +180,7 @@ cdef class Quantity:
         return str(self)
 
     cdef inline sameunits(Quantity self, Quantity other):
-        if not self.unit == other.unit:
-            print self
-            print other
+        if not self.unit == other.unit:            
             raise EIncompatibleUnits('Incompatible units: {} and {}'.format(self, other))
 
     def __add__(x, y):

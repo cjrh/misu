@@ -34,7 +34,7 @@ def createMetricPrefixes(symbol, skipfunction=None):
                 p=prefix, s=symbol, e=SIprefixes_sym[prefix].exponent)
                 )
 
-def createUnit(symbols, quantity, mustCreateMetricPrefixes=False,
+def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
                unitCategory=None, metricSkipFunction=None, notes=None):
     '''
         symbols: string of space-delimited units.  These will also be eval'ed
@@ -46,6 +46,8 @@ def createUnit(symbols, quantity, mustCreateMetricPrefixes=False,
 
         notes: any important notes about the unit.
     '''
+    if valdict:
+        quantity.setValDict(valdict)
     first_symbol = symbols.strip().split(' ')[0].strip()
     if unitCategory:
         addType(quantity, unitCategory)
@@ -112,7 +114,8 @@ def plot_quantities(ax, x, xunits, y, yunits, series_label, y_axlabel=None, x_ax
 
 
 # Population of units data
-dimensionless = Quantity(1.0, quantityTypeName='Dimensionless')
+dimensionless = Quantity(1.0)
+addType(dimensionless, 'Dimensionless')
 
 # SI base units
 '''
@@ -122,16 +125,16 @@ for sym in symbols:
 '''
 
 # Root units
-createUnit('m metre metres', Quantity(1.0, dict(m=1.0)), mustCreateMetricPrefixes=True, unitCategory='Length')
-createUnit('g gram grams', Quantity(1.0e-3, dict(kg=1.0)), mustCreateMetricPrefixes=True, unitCategory='Mass')
+createUnit('m metre metres', Quantity(1.0), valdict=dict(m=1.0), mustCreateMetricPrefixes=True, unitCategory='Length')
+createUnit('g gram grams', Quantity(1.0e-3), valdict=dict(kg=1.0), mustCreateMetricPrefixes=True, unitCategory='Mass')
 g.setRepresent(as_unit=kg, symbol='kg')
 
-createUnit('s second sec', Quantity(1.0, dict(s=1.0)),
+createUnit('s second sec', Quantity(1.0), valdict=dict(s=1.0),
            mustCreateMetricPrefixes=True , unitCategory='Time',
            metricSkipFunction=lambda p: p=='a') # makes "as" which is illegal
-createUnit('A ampere amp amps', Quantity(1.0, dict(A=1.0)), mustCreateMetricPrefixes=True, unitCategory='Current')
+createUnit('A ampere amp amps', Quantity(1.0), valdict=dict(A=1.0), mustCreateMetricPrefixes=True, unitCategory='Current')
 
-createUnit('K kelvin', Quantity(1.0, dict(K=1.0)), mustCreateMetricPrefixes=True, unitCategory='Temperature')
+createUnit('K kelvin', Quantity(1.0), valdict=dict(K=1.0), mustCreateMetricPrefixes=True, unitCategory='Temperature')
 createUnit('R rankine', K*5./9.)
 
 def temperature_value_from_celsius(celsius):
@@ -146,8 +149,8 @@ def temperature_value_from_fahrenheit(fahrenheit):
 def temperature_change_from_fahrenheit(fahrenheit):
     return fahrenheit * R
 
-createUnit('ca candela cd', Quantity(1.0, dict(ca=1.0)), mustCreateMetricPrefixes=False, unitCategory='Luminous intensity')
-createUnit('mol mole moles', Quantity(1.0, dict(mole=1.0)), mustCreateMetricPrefixes=True, unitCategory='Substance')
+createUnit('ca candela cd', Quantity(1.0), valdict=dict(ca=1.0), mustCreateMetricPrefixes=False, unitCategory='Luminous intensity')
+createUnit('mol mole moles', Quantity(1.0), valdict=dict(mole=1.0), mustCreateMetricPrefixes=True, unitCategory='Substance')
 createMetricPrefixes('mole')
 
 # Derived units (definitions)
@@ -583,7 +586,7 @@ createUnit('speed_of_sound_in_air', 340 * m/s)
 # Additional derived quantities
 createUnit('kg_m3', kg/m3, unitCategory="Mass density")
 kg_m3.setRepresent(as_unit=kg_m3, symbol='kg/m3')
-
+#import pdb; pdb.set_trace()
 createUnit('kg_hr', kg/hr, unitCategory="Mass flowrate")
 kg_hr.setRepresent(as_unit=kg_hr, symbol='kg/hr')
 createUnit('kmol_hr', kmol/hr, unitCategory="Molar flowrate")
