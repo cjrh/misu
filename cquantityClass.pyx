@@ -37,10 +37,20 @@ cpdef addType(Quantity q, char* name):
     QuantityType[q.unit_as_tuple()] = name
 
 cdef inline Quantity assertQuantity(x):
+#    if isinstance(x, float):
+#        return Quantity.__new__(Quantity, x)
+#    elif isinstance(x, int):
+#        return Quantity.__new__(Quantity, x)        
+#    elif isinstance(x, long):
+#        return Quantity.__new__(Quantity, x)        
+#    else:
+#        return x
     if isinstance(x, Quantity):
         return x
     else:
         return Quantity.__new__(Quantity, x)
+
+        
 #    if x is Quantity:
 #        return x
 #    else:
