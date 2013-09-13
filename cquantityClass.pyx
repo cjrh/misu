@@ -91,6 +91,18 @@ class EIncompatibleUnits(Exception):
     pass
 
 cdef array _nou  = array('d', [0,0,0,0,0,0,0])
+cdef int UNITS_ENABLED = 1
+
+cpdef units_are_enabled():
+    return UNITS_ENABLED
+    
+cpdef enable_units():
+    global UNITS_ENABLED
+    UNITS_ENABLED = 1
+    
+cpdef disable_units():
+    global UNITS_ENABLED
+    UNITS_ENABLED = 0
 
 @cython.freelist(8)
 cdef class Quantity:
