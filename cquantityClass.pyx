@@ -216,7 +216,6 @@ cdef class Quantity:
         cdef Quantity xq = assertQuantity(x)
         cdef Quantity yq = assertQuantity(y)
         xq.sameunits(yq)
-        #cdef Quantity ans = Quantity(xq.magnitude + yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude + yq.magnitude)
         cdef int i
         for i from 0 <= i < 7:
@@ -227,7 +226,6 @@ cdef class Quantity:
         cdef Quantity xq = assertQuantity(x)
         cdef Quantity yq = assertQuantity(y)
         xq.sameunits(yq)
-        #cdef Quantity ans = Quantity(xq.magnitude - yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude - yq.magnitude)
         cdef int i
         for i from 0 <= i < 7:
@@ -247,13 +245,11 @@ cdef class Quantity:
         cdef int i
         for i from 0 <= i < 7:
             ans.unit[i] = xq.unit[i] + yq.unit[i]
-        #ans.unit = array('d', [x+y for x,y in zip(xq.unit, yq.unit)])
         return ans
 
     def __div__(x,y):
         cdef Quantity xq = assertQuantity(x)
         cdef Quantity yq = assertQuantity(y)
-        #cdef Quantity ans = Quantity(xq.magnitude / yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude / yq.magnitude)
         cdef int i
         for i from 0 <= i < 7:
@@ -272,7 +268,6 @@ cdef class Quantity:
         cdef int i
         for i from 0 <= i < 7:
             ans.unit[i] = xq.unit[i] - yq.unit[i]
-        #ans.unit = array('d', [x-y for x,y in zip(xq.unit, yq.unit)])
         return ans
 
     def __pow__(x, y, z):
@@ -282,11 +277,9 @@ cdef class Quantity:
         cdef int i
         for i from 0 <= i < 7:
             ans.unit[i] = xq.unit[i] * y
-        #ans.unit = array('d', [x*y for x,y in zip(xq.unit, uvals)])
         return ans
 
     def __neg__(self):
-        #cdef Quantity ans = Quantity(-self.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, -self.magnitude)
         cdef int i
         for i from 0 <= i < 7:
@@ -331,17 +324,6 @@ cdef class Quantity:
         if symbol == '':
             return number_part
         else:
-#            if '.' in format_spec:
-#                front, back = format_spec.split('.')
-#                back = '.' + back
-#                fstr = format(mag, back)
-#                return ' '.join([fstr, symbol])
-#            else:
-#                fstr = str()
-#
-#            fstr = '{:' + format_spec + '} {}'
-#            print fstr
-#            return fstr.format(mag, symbol)
             return ' '.join([number_part, symbol])
 
     def __float__(self):
