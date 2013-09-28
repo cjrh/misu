@@ -1,6 +1,7 @@
 import sys
 import os
 from os.path import splitext
+import numpy
 
 if len(sys.argv) == 1:
     print 'You must supply one or more .pyx filenames.'
@@ -36,7 +37,8 @@ Cython.Compiler.Options.annotate = True
 
 setup(
     cmdclass = {'build_ext': build_ext},
-    ext_modules = [Extension(n, [f]) for n, f in extensions]
+    ext_modules = [Extension(n, [f]) for n, f in extensions],
+    include_dirs=[numpy.get_include()]
 )
 
 # Cleanup: delete intermediate C files.
