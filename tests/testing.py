@@ -200,4 +200,9 @@ class TestClass:
         assert repr(y) == '[ 3.  6.  9.] kg/hr'
         assert repr(y**2) == '[  6.94444444e-07   2.77777778e-06   6.25000000e-06] kg^2.0 s^-2.0'
 
+    def test_npclass(self):
+        x = np.array([1.0,2.0,3.0])
+        y = QuantityNP(x) * kg
+        assert repr(y) == '[1  2  3] kg'
+
 
