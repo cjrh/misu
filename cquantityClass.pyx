@@ -130,6 +130,26 @@ cdef class Quantity:
         for i from 0 <= i < 7:
             self.unit[i] = values[i]
 
+    def setValDict2(self, **kwargs):
+        cdef int i
+        cdef list values
+        values = [kwargs.get(s) or 0 for s in symbols]
+        for i from 0 <= i < 7:
+            self.unit[i] = values[i]
+
+    def getunit(self):
+        cdef list out
+        cdef int i
+        out = [0.0]*7
+        for i from 0 <= i < 7:
+            out[i] = self.unit[i]
+        return out
+
+    def setunit(self, list unit):
+        cdef int i
+        for i from 0 <= i < 7:
+            self.unit[i] = unit[i]
+
     def selfPrint(self):
         dict_contents = ','.join(['{}={}'.format(s,v) for s,v in dict(zip(symbols, self.units())).iteritems() if v != 0.0])
         return 'Quantity({}, dict({}))'.format(self.magnitude, dict_contents)
