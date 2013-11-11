@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 # cython: profile=True
 """
 Created on Wed Sep 04 22:15:13 2013
 
-@author: Caleb
+@author: Caleb Hattingh
 """
 
 cimport cython
@@ -24,7 +25,8 @@ from cpython.array cimport array, copy
 
 # Forward declaration
 cdef class Quantity
-cdef class QuantityNP
+cdef class QuantityNP # TODO : numpy support
+
 
 class EIncompatibleUnits(Exception):
     pass
@@ -34,6 +36,31 @@ ctypedef fused Quant:
     Quantity
     QuantityNP
 
+
+ctypedef fused Qnumber:
+    Quantity
+    QuantityNP
+    int
+    double
+    float
+
+
+cdef inline int isQuantity(var):
+    ''' checks whether var is an instance of type 'Quantity'.
+    Returns True or False.'''
+    return isinstance(var, Quantity)
+
+
+cdef inline int isQuantityT(Quant var):
+    ''' SPECIALIZED VERSION
+    checks whether var is an instance of type 'Quantity'.
+    Returns True or False.'''
+    return isinstance(var, Quantity)
+
+
+ctypedef double[7] uarray
+
+
 QuantityType = {}
 cpdef addType(Quantity q, char* name):
     if q.unit_as_tuple() in QuantityType:
@@ -41,6 +68,9 @@ cpdef addType(Quantity q, char* name):
             QuantityType[q.unit_as_tuple()]))
     QuantityType[q.unit_as_tuple()] = name
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline Quantity assertQuantity(x):
 #    if isinstance(x, float):
 #        return Quantity.__new__(Quantity, x)
@@ -50,10 +80,12 @@ cdef inline Quantity assertQuantity(x):
 #        return Quantity.__new__(Quantity, x)
 #    else:
 #        return x
-    if isinstance(x, Quantity):
+    #if isinstance(x, Quantity):
+    if isQuantity(x):
         return x
     else:
         return Quantity.__new__(Quantity, x)
+        #return Quantity(x)
 
 
 #    if x is Quantity:
@@ -64,27 +96,107 @@ cdef inline Quantity assertQuantity(x):
 
 cdef list symbols = ['m', 'kg', 's', 'A', 'K', 'ca', 'mole']
 
-cdef inline int isQuantity(var):
-    ''' checks whether var is an instance of type 'Quantity'.
-    Returns True or False.'''
-    return isinstance(var, Quantity)
 
-#cdef inline sameunits(Quant self, Quant other):
 cdef inline sameunits(Quant self, Quant other):
     cdef int i
     for i from 0 <= i < 7:
         if self.unit[i] != other.unit[i]:
             raise EIncompatibleUnits('Incompatible units: {} and {}'.format(self, other))
 
-#cdef inline sameunits(Quant self, Quant other):
+
 cdef inline sameunitsp(double self[7], double other[7]):
     cdef int i
     for i from 0 <= i < 7:
         if self[i] != other[i]:
-            #raise EIncompatibleUnits('Incompatible units: {} and {}'.format(self, other))
             raise EIncompatibleUnits('Incompatible units: TODO')
 
+cdef class _UnitRegistry:
+    cdef dict _representation_cache
+    cdef dict _symbol_cache
+
+    # For defined quantities, e.g. LENGTH, MASS etc.
+    cdef dict _unit_by_name
+    cdef dict _name_by_unit
+
+    def __cinit__(self):
+        self._symbol_cache = {}
+        self._inverse_symbol_cache = {} # This one is keyed by quantity, with a list of symbols as value.
+        self._representation_cache = {}
+        self._unit_by_name = {}
+        self._name_by_unit = {}
+
+    def add(self, str symbols, Quantity quantity, str quantity_name = None):
+        # Split up the string of symbols
+        cdef list symbols_list = [s.strip() for s in symbols.strip().split(' ') if s.strip() != '']
+        # Add each of the symbols to the symbols dict.  The same quantity is
+        # simply repeated.
+        cdef tuple quantity_as_tuple = quantity.as_tuple()
+        if not quantity_as_tuple in self._inverse_symbol_cache:
+            self._inverse_symbol_cache[quantity_as_tuple] = []
+        self._inverse_symbol_cache[quantity_as_tuple] += symbols_list
+        for s in symbols_list:
+            if s in symbols_list:
+                raise Exception('Symbol "{}" already created!'.format(s))
+            self._symbol_cache[s] = quantity
+            # Inject the symbol into the module namespace.
+            exec('global {s}; {s} = quantity'.format(s=s))
+
+        # Use the first symbol to populate the representation dict.
+        # Note that the representation dict is keyed by the unit tuple.
+        # It is basically a reverse lookup, which returns the symbol string
+        # to use for representation.
+        cdef tuple unit = quantity.unit_as_tuple()
+        # Only add if not already added.  Can always be changed manually
+        # later.
+        if not unit in self._representation_cache:
+            self._representation_cache[unit] = symbols_list[0]
+
+        if quantity_name != None:
+            self.define(quantity, quantity_name)
+
+    cpdef int defined(self, Quant q):
+        ''' Given a quantity, will return a boolean value indicating
+        whether the unit string of the given quantity has been defined
+        as a known quantity, like LENGTH or MASS. '''
+        cdef tuple unit = q.unit_as_tuple()
+        return unit in self._name_by_unit
+
+    cpdef str describe(self, Quant q):
+        ''' If the units of the given quantity have been defined as a
+        quantity, the string describing the quantity will be returned here,
+        otherwise an exception will be raised. '''
+        cdef tuple unit = q.unit_as_tuple()
+        try:
+            return self._name_by_unit[unit]
+        except:
+            raise Exception('The units have not been defined as a quantity.')
+
+    def define(self, Quant q, str quantity_name):
+        cdef tuple unit = q.unit_as_tuple()
+        if quantity_name != None:
+            name = quantity_name.replace(' ', '_').upper()
+            if name in self._unit_by_name:
+                raise Exception('This name has already been defined.')
+            if unit in self._name_by_unit:
+                raise Exception('This unit has already been defined as "{}"'.format(name))
+            self._unit_by_name[name] = unit
+            self._name_by_unit[unit] = name
+
+    def set_represent(self, tuple unit, as_quantity=None, symbol='',
+        convert_function=None, format_spec='.4g'):
+        ''' The given unit tuple will always be presented in the units
+        of "as_quantity", and with the overridden symbol "symbol" if
+        given. '''
+
+    def __getattr__(self, name):
+        ''' Will return a unit string representing a defined quantity. '''
+        try:
+            return self._unit_by_name[name]
+        except:
+            raise Exception('Quantity type "{}" not defined.'.format(name))
+
 RepresentCache = {}
+
 
 # The unit registry is a lookup list where you can find a specific
 # UnitDefinition from a particular symbol.  Note that multiple entries
@@ -103,17 +215,16 @@ class UnitDefinition(object):
                 exec('global {s}; {s} = quantity'.format(s=s))
             except:
                 print 'Error create UnitRegistry entry for symbol: {}'.format(s)
-#                print
-#                print ' '*4 + traceback.format_exc(0)
-#                print
 
 
 cdef array _nou  = array('d', [0,0,0,0,0,0,0])
 
+
 @cython.freelist(8)
 cdef class Quantity:
     cdef readonly double magnitude
-    cdef double unit[7]
+    #cdef double unit[7]
+    cdef uarray unit
     __array_priority__ = 20.0
 
     def __cinit__(self, double magnitude):
@@ -192,6 +303,9 @@ cdef class Quantity:
         for i in range(7):
             out.append(self.unit[i])
         return out
+
+    cpdef tuple as_tuple(self):
+        return (self.magnitude, self.unit_as_tuple())
 
     def _unitString(self):
         if self.unit_as_tuple() in RepresentCache:
