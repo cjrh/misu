@@ -3,6 +3,10 @@
 Created on Fri Sep 06 09:36:59 2013
 
 @author: caleb.hattingh
+
+In the spyder IDE, just hit F10 on this file to have profiler output
+generated.
+
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
