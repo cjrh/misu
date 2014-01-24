@@ -49,22 +49,7 @@ def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
     if valdict:
         quantity.setValDict(valdict)
     first_symbol = symbols.strip().split(' ')[0].strip()
-    if unitCategory:
-        addType(quantity, unitCategory)
-        quantity.setRepresent(as_unit=quantity, symbol=first_symbol)
-
-    for i, symbol in enumerate(symbols.split(' ')):
-        try:
-            symbol = symbol.strip()
-            if symbol == '':
-                continue
-            UnitRegistry[symbol] = quantity
-            exec('global {s}; {s} = quantity'.format(s=symbol))
-            with open('new_declarations.py', 'ab') as f:
-                f.write('{} = {}\n'.format(symbol, quantity.selfPrint()))
-        except:
-            print traceback.format_exc()
-
+    unit_registry.add(symbols, quantity, quantity_name = unitCategory)
     # Metric prefixes
     if mustCreateMetricPrefixes:
         createMetricPrefixes(first_symbol, metricSkipFunction)

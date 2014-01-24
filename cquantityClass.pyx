@@ -72,26 +72,10 @@ cpdef addType(Quantity q, char* name):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef inline Quantity assertQuantity(x):
-#    if isinstance(x, float):
-#        return Quantity.__new__(Quantity, x)
-#    elif isinstance(x, int):
-#        return Quantity.__new__(Quantity, x)
-#    elif isinstance(x, long):
-#        return Quantity.__new__(Quantity, x)
-#    else:
-#        return x
-    #if isinstance(x, Quantity):
     if isQuantity(x):
         return x
     else:
         return Quantity.__new__(Quantity, x)
-        #return Quantity(x)
-
-
-#    if x is Quantity:
-#        return x
-#    else:
-#        return Quantity.__new__(Quantity, <double>x)
 
 
 cdef list symbols = ['m', 'kg', 's', 'A', 'K', 'ca', 'mole']
@@ -113,6 +97,7 @@ cdef inline sameunitsp(double self[7], double other[7]):
 cdef class _UnitRegistry:
     cdef dict _representation_cache
     cdef dict _symbol_cache
+    cdef dict _inverse_symbol_cache
 
     # For defined quantities, e.g. LENGTH, MASS etc.
     cdef dict _unit_by_name
@@ -120,7 +105,7 @@ cdef class _UnitRegistry:
 
     def __cinit__(self):
         self._symbol_cache = {}
-        self._inverse_symbol_cache = {} # This one is keyed by quantity, with a list of symbols as value.
+        self._inverse_symbol_cache = {} # This one is keyed by quantity, with a SET of symbols as value.
         self._representation_cache = {}
         self._unit_by_name = {}
         self._name_by_unit = {}
@@ -132,10 +117,10 @@ cdef class _UnitRegistry:
         # simply repeated.
         cdef tuple quantity_as_tuple = quantity.as_tuple()
         if not quantity_as_tuple in self._inverse_symbol_cache:
-            self._inverse_symbol_cache[quantity_as_tuple] = []
-        self._inverse_symbol_cache[quantity_as_tuple] += symbols_list
+            self._inverse_symbol_cache[quantity_as_tuple] = set()
+        self._inverse_symbol_cache[quantity_as_tuple].update(set(symbols_list))
         for s in symbols_list:
-            if s in symbols_list:
+            if s in self._symbol_cache:
                 raise Exception('Symbol "{}" already created!'.format(s))
             self._symbol_cache[s] = quantity
             # Inject the symbol into the module namespace.
@@ -187,6 +172,72 @@ cdef class _UnitRegistry:
         ''' The given unit tuple will always be presented in the units
         of "as_quantity", and with the overridden symbol "symbol" if
         given. '''
+        if not (as_quantity or convert_function):
+            raise Exception('Either a target unit or a conversion function must be supplied.')
+
+        # Basically we always use a convert function, it's just that
+        # if another unit is given, we'll make a function out of that.
+        if convert_function == None:
+            def proportional_conversion(instance, _):
+                return instance.convert(as_quantity)
+            convert_function = proportional_conversion
+
+        list_of_possible_symbols = self._inverse_symbol_cache[as_quantity.as_tuple()]
+        if symbol == '':
+            use_symbol = list_of_possible_symbols[0]
+        else:
+            use_symbol = symbol
+
+        self._representation_cache[unit] = dict(
+            convert_function=convert_function,
+            symbol=use_symbol,
+            format_spec=format_spec)
+
+    def display_unit_string(self, Quantity q):
+        unit = q.unit_as_tuple()
+        if unit in self._representation_cache:
+            r = self._representation_cache[unit]
+            ret = '{}'.format(r['symbol'])
+            return ret
+        else:
+            text = ' '.join(
+                ['{}^{}'.format(k,v) for k, v in zip(symbols, unit) if v != 0])
+            ret = '{}'.format(text)
+            return ret
+
+    def display_magnitude_value(self, Quantity q):
+        unit = q.unit_as_tuple()
+        if unit in self._representation_cache:
+            r = self._representation_cache[unit]
+            return r['convert_function'](q, q.magnitude)
+        else:
+            return q.magnitude
+
+    def display_symbol(self, Quantity q):
+        unit = q.unit_as_tuple()
+        if unit in self._representation_cache:
+            r = self._representation_cache[unit]
+            return r['symbol']
+        else:
+            return self.display_unit_string(q)
+
+    def display_tuple(self, Quantity q):
+        ''' Returns (magnitude, symbol, format_spec) '''
+        unit = q.unit_as_tuple()
+        if unit in self._representation_cache:
+            r = self._representation_cache[unit]
+            mag = r['convert_function'](q, q.magnitude)
+            symbol = r['symbol']
+            format_spec = r['format_spec']
+        else:
+            mag = q.magnitude
+            symbol = self.display_unit_string(q)
+            format_spec = ''
+        # Temporary fix for a numpy display issue
+        if not type(mag) in [float, int]:
+            format_spec = ''
+        return mag, symbol, format_spec
+
 
     def __getattr__(self, name):
         ''' Will return a unit string representing a defined quantity. '''
@@ -195,26 +246,9 @@ cdef class _UnitRegistry:
         except:
             raise Exception('Quantity type "{}" not defined.'.format(name))
 
-RepresentCache = {}
 
-
-# The unit registry is a lookup list where you can find a specific
-# UnitDefinition from a particular symbol.  Note that multiple entries
-# in the UnitRegistry can point to the same unit definition, because
-# there can be many synonyms for a particular unit, e.g.
-# s, sec, secs, seconds
-UnitRegistry = {}
-class UnitDefinition(object):
-    def __init__(self, symbols, quantity, notes):
-        self.symbols = [s.strip() for s in symbols.strip().split(' ') if s.strip() != '']
-        self.quantity = quantity
-        self.notes = notes
-        for s in self.symbols:
-            try:
-                UnitRegistry[s] = self
-                exec('global {s}; {s} = quantity'.format(s=s))
-            except:
-                print 'Error create UnitRegistry entry for symbol: {}'.format(s)
+cdef _UnitRegistry _unit_registry = _UnitRegistry()
+unit_registry = _unit_registry
 
 
 cdef array _nou  = array('d', [0,0,0,0,0,0,0])
@@ -265,38 +299,6 @@ cdef class Quantity:
         dict_contents = ','.join(['{}={}'.format(s,v) for s,v in dict(zip(symbols, self.units())).iteritems() if v != 0.0])
         return 'Quantity({}, dict({}))'.format(self.magnitude, dict_contents)
 
-    def setRepresent(self, as_unit=None, symbol='',
-        convert_function=None, format_spec='.4g'):
-        '''By default, the target representation is arrived by dividing
-        the current unit MAGNITUDE by the target unit MAGNITUDE, and
-        appending the desired representation symbol.
-
-        However, if a conversion_function is supplied, then INSTEAD the
-        conversion function will be called so:
-
-            output_magnitude = conversion_function(self.magnitude)
-            output_symbol = symbol
-
-            result = '{} {}'.format(output_magnitude, output_symbol)
-
-        The intention of the function argument is to allow
-        non-proportional conversion, typically temperature but also things
-        like barg, bara, etc.
-
-        Note that if a convert_function is supplied, the as_unit arg
-        is IGNORED.'''
-        if not (as_unit or convert_function):
-            raise Exception('Either a target unit or a conversion function must be supplied.')
-
-        if convert_function == None:
-            def proportional_conversion(instance, _):
-                return instance.convert(as_unit)
-            convert_function = proportional_conversion
-        RepresentCache[self.unit_as_tuple()] = dict(
-            convert_function=convert_function,
-            symbol=symbol,
-            format_spec=format_spec)
-
     def units(self):
         cdef list out = []
         cdef int i
@@ -307,47 +309,8 @@ cdef class Quantity:
     cpdef tuple as_tuple(self):
         return (self.magnitude, self.unit_as_tuple())
 
-    def _unitString(self):
-        if self.unit_as_tuple() in RepresentCache:
-            r = RepresentCache[self.unit_as_tuple()]
-            ret = '{}'.format(r['symbol'])
-            return ret
-        else:
-            text = ' '.join(['{}^{}'.format(k,v) for k, v in zip(symbols, self.units()) if v != 0])
-            ret = '{}'.format(text)
-            return ret
-
-    def _getmagnitude(self):
-        if self.unit_as_tuple() in RepresentCache:
-            r = RepresentCache[self.unit_as_tuple()]
-            return r['convert_function'](self, self.magnitude)
-        else:
-            return self.magnitude
-
-    def _getsymbol(self):
-        if self.unit_as_tuple() in RepresentCache:
-            r = RepresentCache[self.unit_as_tuple()]
-            return r['symbol']
-        else:
-            return self._unitString()
-
-    def _getRepresentTuple(self):
-        if self.unit_as_tuple() in RepresentCache:
-            r = RepresentCache[self.unit_as_tuple()]
-            mag = r['convert_function'](self, self.magnitude)
-            symbol = r['symbol']
-            format_spec = r['format_spec']
-        else:
-            mag = self.magnitude
-            symbol = self._unitString()
-            format_spec = ''
-        # Temporary fix for a numpy display issue
-        if not type(mag) in [float, int]:
-            format_spec = ''
-        return mag, symbol, format_spec
-
     def __str__(self):
-        mag, symbol, format_spec = self._getRepresentTuple()
+        mag, symbol, format_spec = unit_registry.display_tuple(self)
         number_part = format(mag, format_spec)
         if symbol == '':
             return number_part
@@ -551,38 +514,6 @@ cdef class QuantityNP:
         dict_contents = ','.join(['{}={}'.format(s,v) for s,v in dict(zip(symbols, self.units())).iteritems() if v != 0.0])
         return 'Quantity({}, dict({}))'.format(self.magnitude, dict_contents)
 
-    def setRepresent(self, as_unit=None, symbol='',
-        convert_function=None, format_spec='.4g'):
-        '''By default, the target representation is arrived by dividing
-        the current unit MAGNITUDE by the target unit MAGNITUDE, and
-        appending the desired representation symbol.
-
-        However, if a conversion_function is supplied, then INSTEAD the
-        conversion function will be called so:
-
-            output_magnitude = conversion_function(self.magnitude)
-            output_symbol = symbol
-
-            result = '{} {}'.format(output_magnitude, output_symbol)
-
-        The intention of the function argument is to allow
-        non-proportional conversion, typically temperature but also things
-        like barg, bara, etc.
-
-        Note that if a convert_function is supplied, the as_unit arg
-        is IGNORED.'''
-        if not (as_unit or convert_function):
-            raise Exception('Either a target unit or a conversion function must be supplied.')
-
-        if convert_function == None:
-            def proportional_conversion(instance, _):
-                return instance.convert(as_unit)
-            convert_function = proportional_conversion
-        RepresentCache[self.unit_as_tuple()] = dict(
-            convert_function=convert_function,
-            symbol=symbol,
-            format_spec=format_spec)
-
     def units(self):
         cdef list out = []
         cdef int i
@@ -590,47 +521,8 @@ cdef class QuantityNP:
             out.append(self.unit[i])
         return out
 
-    def _unitString(self):
-        if self.unit_as_tuple() in RepresentCache:
-            r = RepresentCache[self.unit_as_tuple()]
-            ret = '{}'.format(r['symbol'])
-            return ret
-        else:
-            text = ' '.join(['{}^{}'.format(k,v) for k, v in zip(symbols, self.units()) if v != 0])
-            ret = '{}'.format(text)
-            return ret
-
-    def _getmagnitude(self):
-        if self.unit_as_tuple() in RepresentCache:
-            r = RepresentCache[self.unit_as_tuple()]
-            return r['convert_function'](self, self.magnitude)
-        else:
-            return self.magnitude
-
-    def _getsymbol(self):
-        if self.unit_as_tuple() in RepresentCache:
-            r = RepresentCache[self.unit_as_tuple()]
-            return r['symbol']
-        else:
-            return self._unitString()
-
-    def _getRepresentTuple(self):
-        if self.unit_as_tuple() in RepresentCache:
-            r = RepresentCache[self.unit_as_tuple()]
-            mag = r['convert_function'](self, self.magnitude)
-            symbol = r['symbol']
-            format_spec = r['format_spec']
-        else:
-            mag = self.magnitude
-            symbol = self._unitString()
-            format_spec = ''
-        # Temporary fix for a numpy display issue
-        if not type(mag) in [float, int]:
-            format_spec = ''
-        return mag, symbol, format_spec
-
     def __str__(self):
-        mag, symbol, format_spec = self._getRepresentTuple()
+        mag, symbol, format_spec = unit_registry.display_represent_tuple(self)
         number_part = format(mag, format_spec)
         if symbol == '':
             return number_part
