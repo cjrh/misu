@@ -1,5 +1,13 @@
 # Uses py.test.
 
+
+
+import os
+import sys
+
+new_syspath = os.path.join( os.path.dirname( __file__ ), '../..' )
+sys.path.append(new_syspath)
+
 import pytest
 from unity import *
 import numpy as np

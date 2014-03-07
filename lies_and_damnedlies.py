@@ -10,6 +10,13 @@ Created on Wed Sep 04 14:55:02 2013
 from __future__ import absolute_import, division, print_function, unicode_literals
 import timeit
 
+import os
+folder = os.getcwd()
+#prev_folder = os.path.abspath(os.path.join(folder, os.pardir))
+prev_folder = os.path.join( os.path.dirname( __file__ ), '..' )
+import sys
+sys.path.append(prev_folder)
+
 unity_setup = '''import unity as u
 def calc(mass, volume, time):
     for x in xrange(1000):
