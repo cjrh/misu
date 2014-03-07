@@ -4,6 +4,7 @@ import traceback
 import math
 
 from cquantityClass import *
+#from quantityClass import *
 
 from SIprefixes import SIprefixes_sym
 
