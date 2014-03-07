@@ -109,6 +109,7 @@ cdef inline sameunitsp(double self[7], double other[7]):
     for i from 0 <= i < 7:
         if self[i] != other[i]:
             raise EIncompatibleUnits('Incompatible units: TODO')
+            
 
 cdef class _UnitRegistry:
     cdef dict _representation_cache
