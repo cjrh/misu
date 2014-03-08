@@ -11,17 +11,6 @@ import numpy as np
 cimport numpy as np
 from cpython.array cimport array, copy
 
-# Quantity Type
-#
-# This is a dict that defines a particular configuration of
-# fundamental SI units (m, kg, etc) as a named quantity type.
-# For example,
-#
-#   m^1: 'Length'
-#   m^2: 'Area'
-#   m^3: 'Volume'
-#   m/s: 'Velocity'
-#   kg/s: 'Mass flowrate'
 
 # Forward declaration
 cdef class Quantity
@@ -43,6 +32,13 @@ ctypedef fused Qnumber:
     int
     double
     float
+
+
+ctypedef fused magtype:
+    int
+    double
+    float
+    np.ndarray
 
 
 cdef inline int isQuantity(var):
@@ -196,6 +192,7 @@ cdef class _UnitRegistry:
         except:
             raise Exception('Quantity type "{}" not defined.'.format(name))
 
+
 RepresentCache = {}
 
 
@@ -224,7 +221,6 @@ cdef array _nou  = array('d', [0,0,0,0,0,0,0])
 @cython.freelist(8)
 cdef class Quantity:
     cdef readonly double magnitude
-    #cdef double unit[7]
     cdef uarray unit
     __array_priority__ = 20.0
 
@@ -391,13 +387,31 @@ cdef class Quantity:
             return _nou
 
     def __mul__(x, y):
-        cdef Quantity xq = assertQuantity(x)
-        cdef Quantity yq = assertQuantity(y)
-        cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude * yq.magnitude)
+        cdef QuantityNP xqn
+        cdef QuantityNP yqn
+        cdef QuantityNP ansn
+        
+        cdef Quantity xq
+        cdef Quantity yq
+        cdef Quantity ans
+        
         cdef int i
-        for i from 0 <= i < 7:
-            ans.unit[i] = xq.unit[i] + yq.unit[i]
-        return ans
+        
+        if isinstance(x, np.ndarray) or isinstance(y, np.ndarray) \
+            or isinstance(x, QuantityNP) or isinstance(y, QuantityNP):
+            xqn = assertQuantityNP(x)
+            yqn = assertQuantityNP(y)
+            ansn = QuantityNP.__new__(QuantityNP, xqn.magnitude * yqn.magnitude)            
+            for i from 0 <= i < 7:
+                ansn.unit[i] = xqn.unit[i] + yqn.unit[i]
+            return ansn
+        else:
+            xq = assertQuantity(x)
+            yq = assertQuantity(y)
+            ans = Quantity.__new__(Quantity, xq.magnitude * yq.magnitude)
+            for i from 0 <= i < 7:
+                ans.unit[i] = xq.unit[i] + yq.unit[i]
+            return ans
 
     def __div__(x,y):
         cdef Quantity xq = assertQuantity(x)
@@ -481,10 +495,12 @@ cdef class Quantity:
     def __rshift__(self, other):
         return self.convert(other)
 
+
 cdef inline int isQuantityNP(var):
     ''' checks whether var is an instance of type 'Quantity'.
     Returns True or False.'''
     return isinstance(var, QuantityNP)
+
 
 cdef inline QuantityNP assertQuantityNP(x):
     cdef QuantityNP out
@@ -492,14 +508,13 @@ cdef inline QuantityNP assertQuantityNP(x):
     if isinstance(x, QuantityNP):
         return x
     elif isinstance(x, Quantity):
-
-        out = QuantityNP.__new__(QuantityNP, np.array(x))
+        out = QuantityNP.__new__(QuantityNP, np.array(x.magnitude))
         a = x.getunit()
         out.setunit(a)
-        #out.unit[:] = x.unit
         return out
     else:
         return QuantityNP.__new__(QuantityNP, x)
+
 
 @cython.freelist(8)
 cdef class QuantityNP:

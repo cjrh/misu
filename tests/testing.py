@@ -211,6 +211,6 @@ class TestClass:
     def test_npclass(self):
         x = np.array([1.0,2.0,3.0])
         y = QuantityNP(x) * kg
-        assert repr(y) == '[1  2  3] kg'
+        assert repr(y) == '[ 1.  2.  3.] kg'
 
 
