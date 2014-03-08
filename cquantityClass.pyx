@@ -68,15 +68,6 @@ cpdef addType(Quantity q, char* name):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef inline Quantity assertQuantity(x):
-#    if isinstance(x, float):
-#        return Quantity.__new__(Quantity, x)
-#    elif isinstance(x, int):
-#        return Quantity.__new__(Quantity, x)
-#    elif isinstance(x, long):
-#        return Quantity.__new__(Quantity, x)
-#    else:
-#        return x
-    #if isinstance(x, Quantity):
     if isQuantity(x):
         return x
     else:
