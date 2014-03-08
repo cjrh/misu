@@ -212,5 +212,11 @@ class TestClass:
         x = np.array([1.0,2.0,3.0])
         y = QuantityNP(x) * kg
         assert repr(y) == '[ 1.  2.  3.] kg'
+        
+    def test_numpy_addition(self):
+        x = np.array([1,2,3]) * kg
+        y = np.array([1,2,3]) * lb
+        assert repr(x+y) == '[ 1.45359237  2.90718474  4.36077711] kg'       
+        
 
 
