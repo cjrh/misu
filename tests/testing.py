@@ -223,4 +223,4 @@ class TestClass:
     def test_numpy_subtraction(self):
         x = np.array([1,2,3]) * kg
         y = np.array([1,2,3]) * lb
-        assert repr(x-y) == '[ 0.54640763  1.09281526  1.63922289] kg'  
+        assert repr(x-y) == '[ 0.54640763  1.09281526  1.63922289] kg'  
