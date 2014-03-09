@@ -431,11 +431,6 @@ cdef class Quantity:
     def __truediv__(x, y):
         cdef Quantity xq = assertQuantity(x)
         cdef Quantity yq = assertQuantity(y)
-#        if type(other.magnitude) == int:
-#            denom = float(other.magnitude)
-#        else:xq.unit
-#            denom = other.magnitude
-        #cdef Quantity ans = Quantity(xq.magnitude / yq.magnitude)
         cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude / yq.magnitude)
         cdef int i
         for i from 0 <= i < 7:
@@ -661,12 +656,6 @@ cdef class QuantityNP:
 
     def __repr__(self):
         return str(self)
-
-#    cdef inline sameunits(Quant self, Quant other):
-#        cdef int i
-#        for i from 0 <= i < 7:
-#            if self.unit[i] != other.unit[i]:
-#                raise EIncompatibleUnits('Incompatible units: {} and {}'.format(self, other))
 
     def __add__(x, y):
         cdef QuantityNP xq = assertQuantityNP(x)
