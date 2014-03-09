@@ -377,15 +377,30 @@ cdef class Quantity:
             return ans
 
     def __sub__(x, y):
-        cdef Quantity xq = assertQuantity(x)
-        cdef Quantity yq = assertQuantity(y)
-        sameunits(xq, yq)
-        cdef Quantity ans = Quantity.__new__(Quantity, xq.magnitude - yq.magnitude)
+        cdef QuantityNP xqn
+        cdef QuantityNP yqn
+        cdef QuantityNP ansn
+        
+        cdef Quantity xq
+        cdef Quantity yq
+        cdef Quantity ans
+        
         cdef int i
-        for i from 0 <= i < 7:
-            ans.unit[i] = xq.unit[i]
-        return ans
-
+        
+        if isinstance(x, np.ndarray) or isinstance(y, np.ndarray) \
+            or isinstance(x, QuantityNP) or isinstance(y, QuantityNP):
+            xqn = assertQuantityNP(x)
+            yqn = assertQuantityNP(y)
+            return xqn - yqn
+        else:
+            xq = assertQuantity(x)
+            yq = assertQuantity(y)
+            ans = Quantity.__new__(Quantity, xq.magnitude - yq.magnitude)
+            sameunits(xq, yq)
+            for i from 0 <= i < 7:
+                ans.unit[i] = xq.unit[i]
+            return ans
+        
     def unpack_or_default(self, other):
         try:
             return other.unit
