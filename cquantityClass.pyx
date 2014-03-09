@@ -14,7 +14,7 @@ from cpython.array cimport array, copy
 
 # Forward declaration
 cdef class Quantity
-cdef class QuantityNP # TODO : numpy support
+cdef class QuantityNP
 
 
 class EIncompatibleUnits(Exception):
