@@ -1,7 +1,4 @@
 # Uses py.test.
-
-
-
 import os
 import sys
 
