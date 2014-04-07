@@ -126,16 +126,23 @@ for sym in symbols:
 '''
 
 # Root units
-createUnit('m metre metres', Quantity(1.0), valdict=dict(m=1.0), mustCreateMetricPrefixes=True, unitCategory='Length')
-createUnit('g gram grams', Quantity(1.0e-3), valdict=dict(kg=1.0), mustCreateMetricPrefixes=True, unitCategory='Mass')
+createUnit('m metre metres', Quantity(1.0), valdict=dict(m=1.0), 
+           mustCreateMetricPrefixes=True, unitCategory='Length')
+
+createUnit('g gram grams', Quantity(1.0e-3), valdict=dict(kg=1.0), 
+           mustCreateMetricPrefixes=True, unitCategory='Mass')
 g.setRepresent(as_unit=kg, symbol='kg')
 
-createUnit('s second sec', Quantity(1.0), valdict=dict(s=1.0),
+createUnit('s second sec seconds secs', Quantity(1.0), valdict=dict(s=1.0),
            mustCreateMetricPrefixes=True , unitCategory='Time',
            metricSkipFunction=lambda p: p=='a') # makes "as" which is illegal
-createUnit('A ampere amp amps', Quantity(1.0), valdict=dict(A=1.0), mustCreateMetricPrefixes=True, unitCategory='Current')
 
-createUnit('K kelvin', Quantity(1.0), valdict=dict(K=1.0), mustCreateMetricPrefixes=True, unitCategory='Temperature')
+createUnit('A ampere amperes amp amps', Quantity(1.0), valdict=dict(A=1.0), 
+           mustCreateMetricPrefixes=True, unitCategory='Current')
+
+createUnit('K kelvin', Quantity(1.0), 
+           valdict=dict(K=1.0), mustCreateMetricPrefixes=True, 
+           unitCategory='Temperature')
 createUnit('R rankine', K*5./9.)
 
 def temperature_value_from_celsius(celsius):
@@ -664,7 +671,8 @@ def dimensions(**_params_):
             for name, category in _params_.iteritems():
                 param = kw[name]
                 assert isinstance(param, Quantity), \
-                    'Parameter "{}" must be an instance of class Quantity (and must be of unit type "{}").'.format(name, category)
+                    '''Parameter "{}" must be an instance of class Quantity 
+(and must be of unit type "{}").'''.format(name, category)
                 assert param.unitCategory() == category, \
                     'Parameter "{}" must be unit type "{}".'.format(name, category)
             return _func_(**kw)
