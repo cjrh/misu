@@ -12,7 +12,6 @@ cimport numpy as np
 from cpython.array cimport array, copy
 
 
-# Forward declaration
 cdef class Quantity
 cdef class QuantityNP
 
@@ -20,6 +19,8 @@ cdef class QuantityNP
 class EIncompatibleUnits(Exception):
     pass
 
+class ESignatureAlreadyRegistered(Exception):
+    pass
 
 ctypedef fused Quant:
     Quantity
