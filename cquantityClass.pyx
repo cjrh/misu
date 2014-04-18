@@ -58,6 +58,14 @@ cdef inline int isQuantityT(Quant var):
 ctypedef double[7] uarray
 
 
+cdef inline void copyunits(Quant source, Quant dest):
+    ''' Cython limitations require that both source and dest are the same
+    type. '''
+    cdef int i
+    for i from 0 <= i < 7:
+        dest.unit[i] = source.unit[i]
+
+
 QuantityType = {}
 cpdef addType(Quantity q, char* name):
     if q.unit_as_tuple() in QuantityType:
