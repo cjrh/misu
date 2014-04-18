@@ -52,7 +52,7 @@ cdef inline int isQuantityT(Quant var):
     ''' SPECIALIZED VERSION
     checks whether var is an instance of type 'Quantity'.
     Returns True or False.'''
-    return isinstance(var, Quantity)
+    return isinstance(var, Quantity) or isinstance(var, QuantityNP)
 
 
 ctypedef double[7] uarray
