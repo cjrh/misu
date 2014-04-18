@@ -805,6 +805,13 @@ cdef class QuantityNP:
 
     def __rshift__(self, other):
         return self.convert(other)
+        
+    def copy(self):
+        cdef QuantityNP ans = QuantityNP.__new__(QuantityNP, self.magnitude)
+        cdef int i
+        for i from 0 <= i < 7:
+            ans.unit[i] = self.unit[i]
+        return ans
 
 
 if __name__ == '__main__':
