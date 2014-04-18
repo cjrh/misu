@@ -119,13 +119,25 @@ cdef class _UnitRegistry:
 
     def add(self, str symbols, Quantity quantity, str quantity_name = None):
         # Split up the string of symbols
-        cdef list symbols_list = [s.strip() for s in symbols.strip().split(' ') if s.strip() != '']
-        # Add each of the symbols to the symbols dict.  The same quantity is
-        # simply repeated.
+        cdef list symbols_list = [
+            s.strip() for s in symbols.strip().split(' ') if s.strip() != '']
+        # Populating the registry dicts.
         cdef tuple quantity_as_tuple = quantity.as_tuple()
         if not quantity_as_tuple in self._inverse_symbol_cache:
+            # Prepare the inverse symbol cache.
             self._inverse_symbol_cache[quantity_as_tuple] = []
+
+        # Add the list of symbols. We can use this dict to find all the
+        # allowed symbols for a given quantity. For example, 'm metre metres'
+        # if we have a quantity and can find it in the inverse symbol cache,
+        # we will be able to see that each of 'm', 'metre' and 'metres' are 
+        # valid symbols for this quantity definition.
         self._inverse_symbol_cache[quantity_as_tuple] += symbols_list
+
+        # Add each of the symbols to the symbols dict.  The same quantity is
+        # simply repeated. The symbols dict is the opposite of the inverse
+        # symbol cache. Given a (string) symbol, we can immediately find
+        # the quantity object that the symbol maps to.
         for s in symbols_list:
             if s in symbols_list:
                 raise Exception('Symbol "{}" already created!'.format(s))
@@ -534,7 +546,6 @@ cdef inline QuantityNP assertQuantityNP(x):
         return out
     else:
         return QuantityNP.__new__(QuantityNP, x)
-
 
 @cython.freelist(8)
 cdef class QuantityNP:
