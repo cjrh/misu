@@ -563,6 +563,18 @@ cdef class QuantityNP:
     def __dir__(self):
         return dir(self.magnitude)
 
+    def __getitem__(self, val):
+        cdef int i
+        cdef Quantity ansq
+        if type(val)==int:
+            ansq = Quantity.__new__(Quantity, self.magnitude[val])
+            for i from 0 <= i < 7:
+                ansq.unit[i] = self.unit[i]
+            return ansq
+        cdef QuantityNP ans = QuantityNP.__new__(QuantityNP, self.magnitude[val])
+        copyunits(self, ans)
+        return ans
+        
     cdef inline tuple unit_as_tuple(self):
         return tuple(self.units())
 
