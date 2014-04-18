@@ -565,7 +565,6 @@ cdef class QuantityNP:
 
     cdef inline tuple unit_as_tuple(self):
         return tuple(self.units())
-        #return tuple(self.unit.tolist())
 
     def setValDict(self, dict valdict):
         cdef int i
@@ -734,11 +733,6 @@ cdef class QuantityNP:
     def __truediv__(x, y):
         cdef QuantityNP xq = assertQuantityNP(x)
         cdef QuantityNP yq = assertQuantityNP(y)
-#        if type(other.magnitude) == int:
-#            denom = float(other.magnitude)
-#        else:xq.unit
-#            denom = other.magnitude
-        #cdef Quantity ans = Quantity(xq.magnitude / yq.magnitude)
         cdef QuantityNP ans = QuantityNP.__new__(QuantityNP, xq.magnitude / yq.magnitude)
         cdef int i
         for i from 0 <= i < 7:
