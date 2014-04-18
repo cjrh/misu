@@ -81,13 +81,6 @@ cdef inline Quantity assertQuantity(x):
         return x
     else:
         return Quantity.__new__(Quantity, x)
-        #return Quantity(x)
-
-
-#    if x is Quantity:
-#        return x
-#    else:
-#        return Quantity.__new__(Quantity, <double>x)
 
 
 cdef list symbols = ['m', 'kg', 's', 'A', 'K', 'ca', 'mole']
@@ -97,7 +90,8 @@ cdef inline sameunits(Quant self, Quant other):
     cdef int i
     for i from 0 <= i < 7:
         if self.unit[i] != other.unit[i]:
-            raise EIncompatibleUnits('Incompatible units: {} and {}'.format(self, other))
+            raise EIncompatibleUnits(
+                'Incompatible units: {} and {}'.format(self, other))
 
 
 cdef inline sameunitsp(double self[7], double other[7]):
@@ -105,20 +99,21 @@ cdef inline sameunitsp(double self[7], double other[7]):
     for i from 0 <= i < 7:
         if self[i] != other[i]:
             raise EIncompatibleUnits('Incompatible units: TODO')
-            
+
 
 cdef class _UnitRegistry:
     cdef dict _representation_cache
     cdef dict _symbol_cache
 
     # For defined quantities, e.g. LENGTH, MASS etc.
-    cdef dict _unit_by_name
-    cdef dict _name_by_unit
+    cdef dict _unit_by_name # A name can mean only one unit
+    cdef dict _name_by_unit # One unit type can have multiple names, so the 
+                            # values are lists.
 
     def __cinit__(self):
         self._symbol_cache = {}
-        self._inverse_symbol_cache = {} # This one is keyed by quantity, with a list of symbols as value.
-        self._representation_cache = {}
+        self._inverse_symbol_cache = {} # This one is keyed by quantity, with 
+        self._representation_cache = {} # ... a list of symbols as value.
         self._unit_by_name = {}
         self._name_by_unit = {}
 
