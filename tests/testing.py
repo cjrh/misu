@@ -221,3 +221,9 @@ class TestClass:
         x = np.array([1,2,3]) * kg
         y = np.array([1,2,3]) * lb
         assert repr(x-y) == '[ 0.54640763  1.09281526  1.63922289] kg'  
+        
+    def test_numpy_slice(self):
+        x = np.array([ 0.08400557, 0.19897197, 0.12407021, 0.11867142]) * kg/hr
+        assert repr(x[:2]) == '[ 0.08400557  0.19897197] kg/hr'
+        assert repr(x[3]) == '0.1187 kg/hr'
+
