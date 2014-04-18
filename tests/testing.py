@@ -215,7 +215,7 @@ class TestClass:
         y = np.array([1,2,3]) * lb
         assert repr(x+y) == '[ 1.45359237  2.90718474  4.36077711] kg'  
         lbval = x+y >> lb
-        assert np.allclose( lbval, np.array([ 3.20462262,  6.40924524,  9.61386787])) 
+        assert np.allclose(lbval, np.array([ 3.20462262,  6.40924524,  9.61386787])) 
         
     def test_numpy_subtraction(self):
         x = np.array([1,2,3]) * kg
