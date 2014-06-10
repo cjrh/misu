@@ -233,7 +233,11 @@ cdef class Quantity:
 
     def __cinit__(self, double magnitude):
         self.magnitude = magnitude
+        #self.stddev = 0
         self.unit[:] = [0,0,0,0,0,0,0]
+
+#    def __array_wrap__(array, context=None):
+#        return 
 
     cdef inline tuple unit_as_tuple(self):
         return tuple(self.units())
@@ -557,11 +561,27 @@ cdef class QuantityNP:
         self.magnitude = magnitude
         self.unit[:] = [0,0,0,0,0,0,0]
 
-    def __getattr__(self, name):
-        return getattr(self.magnitude, name)
+    #def __array__(self, dtype=None):
+    #    return self.magnitude
+        
+    ## We have to disable this for now. ufuncs in danger of giving the wrong 
+    ## answer.
+    #def __getattr__(self, name):
+    #    ''' All member lookup not found here get passed to the magnitude value. '''
+    #    return getattr(self.magnitude, name)
 
-    def __dir__(self):
-        return dir(self.magnitude)
+    #def __dir__(self):
+    #    return dir(self.magnitude)
+
+#    def __array_wrap__(self, array, context=None):
+#        print self
+#        print array
+#        
+#        cdef QuantityNP ans = assertQuantityNP(array)
+#        cdef int i
+#        for i from 0 <= i < 7:
+#            ans.unit[i] = self.unit[i]
+#        return ans
 
     def __getitem__(self, val):
         cdef int i
