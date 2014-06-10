@@ -2,24 +2,9 @@
 from __future__ import division
 import traceback
 import math
-
 from cquantityClass import *
-#from quantityClass import *
-
-
 from SIprefixes import SIprefixes_sym
 
-
-# This is a file that is python module that contains all the unit
-# declarations.  This two-stage process was necessary because
-# cython complained about the use of "exec" that I was using
-# in order to populate the module namespace with unit declarations.
-# In the two-stage process, we first generate a valid python file that
-# contains all the explicit declarations of the quantity types, and then
-# secondly we'll have to import that somehow in order to use them.
-with open('new_declarations.py', 'wb') as f:
-    f.write('from quantityClass import Quantity\n')
-    f.write('\n')
 
 def createMetricPrefixes(symbol, skipfunction=None):
     ''' Populates the namespace with all the SI-prefixed versions of the
@@ -31,10 +16,7 @@ def createMetricPrefixes(symbol, skipfunction=None):
         subs = template.format(
             p=prefix, s=symbol, e=SIprefixes_sym[prefix].exponent)
         exec(subs)
-        with open('new_declarations.py', 'ab') as f:
-            f.write('{p}{s} = 1e{e} * {s}\n'.format(
-                p=prefix, s=symbol, e=SIprefixes_sym[prefix].exponent)
-                )
+
 
 def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
                unitCategory=None, metricSkipFunction=None, notes=None):
@@ -62,8 +44,6 @@ def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
                 continue
             UnitRegistry[symbol] = quantity
             exec('global {s}; {s} = quantity'.format(s=symbol))
-            with open('new_declarations.py', 'ab') as f:
-                f.write('{} = {}\n'.format(symbol, quantity.selfPrint()))
         except:
             print traceback.format_exc()
 
@@ -71,66 +51,24 @@ def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
     if mustCreateMetricPrefixes:
         createMetricPrefixes(first_symbol, metricSkipFunction)
 
-def plot_quantities(ax, x, xunits, y, yunits, series_label, y_axlabel=None, x_axlabel=None):
+def plot_quantities(ax, x, xunits, y, yunits, series_label,
+                    y_axlabel=None, x_axlabel=None):
     ''' Utility function that will include the units into the plot.'''
     xdata = x >> xunits
     ydata = y >> yunits
-
-#Doesn't work for what I want to do:
-#
-#inch.units
-#Out[10]: <bound method Quantity.units of 0.0254 m>
-#
-#inch.units()
-#Out[11]: Ustruct(m=1.0, kg=0.0, s=0.0, A=0.0, K=0.0, ca=0.0, mole=0.0)
-#
-#inch.magnitude
-#Out[12]: 0.0254
-#
-#inch
-#Out[13]: 0.0254 m
-#
-#inch.setRepresent(as_unit=inch, symbol='inches')
-#
-#inch
-#Out[15]: 1 inches
-#
-#inch
-#Out[16]: 1 inches
-#
-#inch.magnitude
-#Out[17]: 0.0254
-#
-#inch.units()
-#Out[18]: Ustruct(m=1.0, kg=0.0, s=0.0, A=0.0, K=0.0, ca=0.0, mole=0.0)
-
-
-
-#    def __array__(self):
-#        print '__array__', self, type(self)
-#        if str(type(self.magnitude)) == "<type 'numpy.ndarray'>":
-#            return self.magnitude
-#        else:
-#            return []
-
+    # TODO : unfinished.
 
 
 # Population of units data
 dimensionless = Quantity(1.0)
 addType(dimensionless, 'Dimensionless')
 
-# SI base units
-'''
-for sym in symbols:
-    exec('{0} = Quantity(1.0, dict({0}=1.0))'.format(sym))
-    print eval(sym), eval(sym).units()
-'''
 
 # Root units
-createUnit('m metre metres', Quantity(1.0), valdict=dict(m=1.0), 
+createUnit('m metre metres', Quantity(1.0), valdict=dict(m=1.0),
            mustCreateMetricPrefixes=True, unitCategory='Length')
 
-createUnit('g gram grams', Quantity(1.0e-3), valdict=dict(kg=1.0), 
+createUnit('g gram grams', Quantity(1.0e-3), valdict=dict(kg=1.0),
            mustCreateMetricPrefixes=True, unitCategory='Mass')
 g.setRepresent(as_unit=kg, symbol='kg')
 
@@ -138,11 +76,11 @@ createUnit('s second sec seconds secs', Quantity(1.0), valdict=dict(s=1.0),
            mustCreateMetricPrefixes=True , unitCategory='Time',
            metricSkipFunction=lambda p: p=='a') # makes "as" which is illegal
 
-createUnit('A ampere amperes amp amps', Quantity(1.0), valdict=dict(A=1.0), 
+createUnit('A ampere amperes amp amps', Quantity(1.0), valdict=dict(A=1.0),
            mustCreateMetricPrefixes=True, unitCategory='Current')
 
-createUnit('K kelvin', Quantity(1.0), 
-           valdict=dict(K=1.0), mustCreateMetricPrefixes=True, 
+createUnit('K kelvin', Quantity(1.0),
+           valdict=dict(K=1.0), mustCreateMetricPrefixes=True,
            unitCategory='Temperature')
 createUnit('R rankine', K*5./9.)
 
@@ -664,6 +602,8 @@ N_m.setRepresent(as_unit=N_m, symbol='N/m')
 createUnit('g_mol', g/mol, unitCategory="Molecular weight")
 g_mol.setRepresent(as_unit=g_mol, symbol='g/mol')
 
+
+# This is a decorator that will ensure arguments match declared units
 def dimensions(**_params_):
     def check_types(_func_, _params_ = _params_):
         def modified(*args, **kw):
@@ -672,7 +612,7 @@ def dimensions(**_params_):
             for name, category in _params_.iteritems():
                 param = kw[name]
                 assert isinstance(param, Quantity), \
-                    '''Parameter "{}" must be an instance of class Quantity 
+                    '''Parameter "{}" must be an instance of class Quantity
 (and must be of unit type "{}").'''.format(name, category)
                 assert param.unitCategory() == category, \
                     'Parameter "{}" must be unit type "{}".'.format(name, category)
@@ -684,6 +624,7 @@ def dimensions(**_params_):
         return modified
     # For IDEs, make sure the arg lists propagate through to the user
     return check_types
+
 
 if __name__ == '__main__':
     print

@@ -10,9 +10,11 @@ generated.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import addmodule
+addmodule.addpath()
 from unity import *
 
-COUNT = 100000
+COUNT = 1000000
 
 def testu():
     for x in xrange(COUNT):

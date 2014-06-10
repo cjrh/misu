@@ -41,7 +41,7 @@ def calc(mass, volume, time):
 '''
 plain_code = '''calc(10.0, 5.0, 20.0)'''
 
-COUNT = 10
+COUNT = 500
 
 # Unity
 print('{:15}: {:>8.4g} s'.format(
