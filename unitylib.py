@@ -1,5 +1,5 @@
 # coding=utf8
-from __future__ import division
+from __future__ import division, print_function, unicode_literals
 import traceback
 import math
 from cquantityClass import *
@@ -45,7 +45,7 @@ def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
             UnitRegistry[symbol] = quantity
             exec('global {s}; {s} = quantity'.format(s=symbol))
         except:
-            print traceback.format_exc()
+            print(traceback.format_exc())
 
     # Metric prefixes
     if mustCreateMetricPrefixes:
@@ -627,18 +627,18 @@ def dimensions(**_params_):
 
 
 if __name__ == '__main__':
-    print
-    print '*'*80
-    print
+    print()
+    print('*'*80)
+    print()
     def test(text):
         '''Utility function for pretty-print test output.'''
         try:
-            print '{:50}: {}'.format(text, eval(text))
+            print('{:50}: {}'.format(text, eval(text)))
         except:
-            print
-            print 'Trying: ' + text
-            print traceback.format_exc()
-            print
+            print()
+            print('Trying: ' + text)
+            print(traceback.format_exc())
+            print()
 
     a = 2.5 * kg / s
     b = 34.67 * kg / s
@@ -662,28 +662,28 @@ if __name__ == '__main__':
     ############################################################################
 
     from sys import getsizeof
-    print getsizeof(a)
+    print(getsizeof(a))
 
-    print
-    print 'Testing Quantities'
-    print '=================='
-    print
+    print()
+    print('Testing Quantities')
+    print('==================')
+    print()
     #print 'QuantityType = {}'.format(QuantityType)
     #print 'Quantity Type of m is {}'.format(QuantityType[m.unit])
-    print
-    print 'Hz = {}'.format(Hz)
-    print 'kHz = {}'.format(kHz)
-    print 'MHz = {}'.format(MHz)
-    print 'GHz = {}'.format(GHz)
+    print()
+    print('Hz = {}'.format(Hz))
+    print('kHz = {}'.format(kHz))
+    print('MHz = {}'.format(MHz))
+    print('GHz = {}'.format(GHz))
 
     def pbrk():
-        print
-        print '='*20
-        print
+        print()
+        print('='*20)
+        print()
     pbrk()
 
     def lookupType(quantity):
-        print 'Quantity: {} Type: {}'.format(quantity, quantity.unitCategory())
+        print('Quantity: {} Type: {}'.format(quantity, quantity.unitCategory()))
 
     lookupType(BTU)
     lookupType(lb)
@@ -695,21 +695,21 @@ if __name__ == '__main__':
     #########################################D:\Dropbox\Technical\codelibs\workspace\ipython_notebooks###################################
 
     pbrk()
-    print 'Example calculations:'
+    print('Example calculations:')
     pbrk()
 
     mass = 200*lb
     #import pdb; pdb.set_trace()
-    print 'mass = {}'.format(mass)
+    print('mass = {}'.format(mass))
     flowrate = 40*mg/s
-    print 'flowrate = {}'.format(flowrate)
+    print('flowrate = {}'.format(flowrate))
     s.setRepresent(as_unit=d, symbol='days')
-    print 'Time required to make final mass = {}'.format(mass / flowrate)
+    print('Time required to make final mass = {}'.format(mass / flowrate))
 
     ############################################################################
 
     pbrk()
-    print 'Checking the function decorator'
+    print('Checking the function decorator')
     pbrk()
 
     @dimensions(rho='Mass density', v='Velocity', L='Length', mu='Dynamic viscosity')
