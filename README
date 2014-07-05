@@ -1,8 +1,1 @@
-Unity is a python module for handling units in Python.
-
-The user-installable files are:
-
-__init__.py
-unitylib.py
-SIprefixes.py
-cquantityClass.pyd (cquantityClass.pyx)
+README for the unity python package.

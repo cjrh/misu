@@ -1,0 +1,16 @@
+#documentation
+recursive-include docs/_build/html *
+
+#demos
+recursive-include unity/demos *
+
+#tests
+recursive-include unity/tests *
+
+#cython file
+include unity/engine.c
+include unity/Makefile
+
+#Misc
+include CHANGES.txt
+include LICENSE.txt

@@ -717,11 +717,11 @@ if __name__ == '__main__':
         return rho * v * L / mu
 
     data=dict(rho=1000*kg/m3, v=12*m/s, L=5*inch, mu=1e-3*Pa*s)
-    print 'Re = {}'.format(Reynolds_number(**data))
+    print('Re = {}'.format(Reynolds_number(**data)))
 
     data=dict(rho=1000*kg/m3, v=12*m/s, L=1.5*inch, mu=1.011e-3*Pa*s)
     Re = Reynolds_number(**data)
-    print 'Re = {:.2e}'.format(Reynolds_number(**data))
+    print('Re = {:.2e}'.format(Reynolds_number(**data)))
 
     @dimensions(roughness='Length', Dh='Length', Re='Dimensionless')
     def friction_factor_Colebrook(roughness, Dh, Re):
@@ -749,13 +749,11 @@ if __name__ == '__main__':
 
     f = friction_factor_Colebrook(1e-6*m, 1.5*inch, Re)
     fH = friction_factor_Colebrook_Haaland(1e-6*m, 1.5*inch, Re)
-    print 'At Re = {}, friction factor = {}'.format(Re, f)
-    print 'At Re = {}, friction factorH = {}'.format(Re, fH)
+    print('At Re = {}, friction factor = {}'.format(Re, f))
+    print('At Re = {}, friction factorH = {}'.format(Re, fH))
     if isinstance(f, Quantity):
-        print 'f.unitCategory() = {}'.format(f.unitCategory())
-    if isinstance(fH, Quantity):
-        print 'fH.unitCategory() = {}'.format(fH.unitCategory())
-
+        print('f.unitCategory() = {}'.format(f.unitCategory()))
+    #if isinstance(fH, Quantity):
 
     @dimensions(
         fD='Dimensionless', D='Length', rho='Mass density', v='Velocity', L='Length')
