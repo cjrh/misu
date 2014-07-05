@@ -12,8 +12,7 @@ import timeit
 
 import os
 folder = os.getcwd()
-#prev_folder = os.path.abspath(os.path.join(folder, os.pardir))
-prev_folder = os.path.join( os.path.dirname( __file__ ), '..' )
+prev_folder = os.path.join( os.path.dirname( __file__ ), '..','..' )
 import sys
 sys.path.append(prev_folder)
 

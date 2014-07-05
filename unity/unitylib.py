@@ -2,7 +2,7 @@
 from __future__ import division, print_function, unicode_literals
 import traceback
 import math
-from cquantityClass import *
+from engine import *
 from SIprefixes import SIprefixes_sym
 
 
@@ -775,15 +775,15 @@ if __name__ == '__main__':
         rho = 1000*kg/m3
         Re = Reynolds_number(rho=rho, v=v, L=D, mu=1e-3*Pa*s)
         f = friction_factor_Colebrook(1e-5*m, D, Re)
-        print 'Pressure drop at diameter {} = {}'.format(
+        print('Pressure drop at diameter {} = {}').format(
             D, pressure_drop(f,D,rho, v, L=1*m))
 
     pbrk()
-    print 'Few more checks'
+    print('Few more checks')
     pbrk()
 
     v = 101*m/s
-    print '101 m/s -> ft/hr = {}'.format(v.convert(ft/hr))
+    print('101 m/s -> ft/hr = {}').format(v.convert(ft/hr))
 
     dbg=1
     import numpy as np
