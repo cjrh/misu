@@ -2,7 +2,7 @@
 import os
 import sys
 
-new_syspath = os.path.join( os.path.dirname( __file__ ), '..', '..' )
+new_syspath = os.path.join(os.path.dirname(__file__), '..', '..')
 sys.path.append(new_syspath)
 
 import pytest
@@ -12,8 +12,10 @@ import numpy as np
 a = 2.5 * kg / s
 b = 34.67 * kg / s
 
+
 def lookupType(quantity):
     return 'Quantity: {} Type: {}'.format(quantity, quantity.unitCategory())
+
 
 class TestClass:
     def test_representation(self):
@@ -21,7 +23,7 @@ class TestClass:
         assert repr(b) == '1.248e+05 kg/hr'
 
     def test_format_simple(self):
-        assert '{:.2f}'.format(b)    == '124812.00 kg/hr'
+        assert '{:.2f}'.format(b) == '124812.00 kg/hr'
 
     def test_format_left_align(self):
         fmtstr = '{:<20.2f}'.format(b)
@@ -56,7 +58,8 @@ class TestClass:
         assert repr((1.0/m)**0.5) == '1.0 m^-0.5'
 
         assert repr(((kg ** 2.0)/(m))**0.5) == '1.0 m^-0.5 kg^1.0'
-        assert repr((1.56724 * (kg ** 2.0)/(m * (s**2.0)))**0.5) ==  '1.25189456425 m^-0.5 kg^1.0 s^-1.0'
+        assert repr((1.56724 * (kg ** 2.0)/(m * (s**2.0)))**0.5) \
+            == '1.25189456425 m^-0.5 kg^1.0 s^-1.0'
 
     def test_si_prefixes(self):
         assert 'Hz = {}'.format(Hz) == 'Hz = 1 Hz'
@@ -70,7 +73,8 @@ class TestClass:
     def test_unit_category(self):
         assert lookupType(BTU) == 'Quantity: 1054 J Type: Energy'
         assert lookupType(lb) == 'Quantity: 0.4536 kg Type: Mass'
-        assert lookupType(200*MW * 10*d) == 'Quantity: 1.728e+14 J Type: Energy'
+        assert lookupType(200*MW * 10*d) \
+            == 'Quantity: 1.728e+14 J Type: Energy'
         #J.setRepresent(as_unit=GJ, symbol='GJ')
         #assert lookupType(200*MW * 10*d)
 
@@ -79,7 +83,8 @@ class TestClass:
         a standard dimensionless number in process engineering.'''
 
         # Function definition
-        @dimensions(rho='Mass density', v='Velocity', L='Length', mu='Dynamic viscosity')
+        @dimensions(rho='Mass density', v='Velocity', L='Length',
+                    mu='Dynamic viscosity')
         def Reynolds_number(rho, v, L, mu):
             return rho * v * L / mu
 
@@ -114,9 +119,11 @@ class TestClass:
             x1 = l * K * Re / 18.574
             x2 = math.log(l * Re.magnitude / 5.02)
             zj = x2 - 1./5.
-            for i in range(2): # two iterations
+            # two iterations
+            for i in range(2):
                 ej = (zj + math.log(x1 + zj) - x2) / (1. + x1 + zj)
-                tol = (1. + x1 + zj + (1./2.)*ej) * ej * (x1 + zj) / (1. + x1 + zj + ej + (1./3.)*ej**2)
+                tol = (1. + x1 + zj + (1./2.)*ej) * ej * (x1 + zj) \
+                    / (1. + x1 + zj + ej + (1./3.)*ej**2)
                 zj = zj - tol
 
             return (l / 2.0 / zj)**2
@@ -130,11 +137,15 @@ class TestClass:
 
         f = friction_factor_Colebrook(1e-6*m, 1.5*inch, Re)
         fH = friction_factor_Colebrook_Haaland(1e-6*m, 1.5*inch, Re)
-        assert 'At Re = {}, friction factor = {}'.format(Re, f) == 'At Re = 452225.519288, friction factor = 0.0137489883857'
-        assert 'At Re = {}, friction factorH = {}'.format(Re, fH) == 'At Re = 452225.519288, friction factorH = 0.0135940052381'
+        assert 'At Re = {}, friction factor = {}'.format(Re, f) \
+            == 'At Re = 452225.519288, friction factor = 0.0137489883857'
+        assert 'At Re = {}, friction factorH = {}'.format(Re, fH) \
+            == 'At Re = 452225.519288, friction factorH = 0.0135940052381'
 
-        assert 'f.unitCategory() = {}'.format(f.unitCategory()) == 'f.unitCategory() = Dimensionless'
-        assert 'fH.unitCategory() = {}'.format(fH.unitCategory()) == 'fH.unitCategory() = Dimensionless'
+        assert 'f.unitCategory() = {}'.format(f.unitCategory()) \
+            == 'f.unitCategory() = Dimensionless'
+        assert 'fH.unitCategory() = {}'.format(fH.unitCategory()) \
+            == 'fH.unitCategory() = Dimensionless'
 
         # The friction factor can then be used to calculate the
         # expected drop in pressure produced by flow through a
@@ -160,13 +171,13 @@ class TestClass:
         m.setRepresent(as_unit=inch, symbol='"')
         Pa.setRepresent(as_unit=bar, symbol='bar')
         lines = []
-        for D in [x*inch for x in range(1,11)]:
+        for D in [x*inch for x in range(1, 11)]:
             v = flow / D**2 / math.pi * 4
             rho = 1000*kg/m3
             Re = Reynolds_number(rho=rho, v=v, L=D, mu=1e-3*Pa*s)
             f = friction_factor_Colebrook(1e-5*m, D, Re)
             lines.append('Pressure drop at diameter {} = {}'.format(
-                D, pressure_drop(f,D,rho, v, L=1*m)))
+                D, pressure_drop(f, D, rho, v, L=1*m)))
 
         # Spot checks
         assert lines[0] == 'Pressure drop at diameter 1 " = 1.215e+04 bar'
@@ -178,52 +189,53 @@ class TestClass:
         m.setRepresent(as_unit=m, symbol='m')
 
         @dimensions(x='Length')
-        def f(x,y,z):
+        def f(x, y, z):
             return x*y*z
 
         assert f(12*cm, 1, 1) == 0.12*m
 
         @dimensions(y='Length')
-        def f(x,y,z):
+        def f(x, y, z):
             return x*y*z
 
         assert f(1, 12*cm, 1) == 0.12*m
 
         @dimensions(z='Length')
-        def f(x,y,z):
+        def f(x, y, z):
             return x*y*z
 
         assert f(1, 1, 12*cm) == 0.12*m
 
     def test_numpy_basic(self):
-        x = np.array([1,2,3]) * kg
+        x = np.array([1, 2, 3]) * kg
         assert repr(x) == '[ 1.  2.  3.] kg'
 
     def test_numpy_operations(self):
-        x = np.array([1,2,3]) * kg
+        x = np.array([1, 2, 3]) * kg
         y = x / (20*minutes)
         assert repr(y) == '[ 3.  6.  9.] kg/hr'
-        assert repr(y**2) == '[  6.94444444e-07   2.77777778e-06   6.25000000e-06] kg^2.0 s^-2.0'
+        assert repr(y**2) \
+            == '[  6.94444444e-07   2.77777778e-06   6.25000000e-06] kg^2.0 s^-2.0'
 
     def test_npclass(self):
-        x = np.array([1.0,2.0,3.0])
+        x = np.array([1.0, 2.0, 3.0])
         y = QuantityNP(x) * kg
         assert repr(y) == '[ 1.  2.  3.] kg'
-        
+
     def test_numpy_addition(self):
-        x = np.array([1,2,3]) * kg
-        y = np.array([1,2,3]) * lb
-        assert repr(x+y) == '[ 1.45359237  2.90718474  4.36077711] kg'  
+        x = np.array([1, 2, 3]) * kg
+        y = np.array([1, 2, 3]) * lb
+        assert repr(x+y) == '[ 1.45359237  2.90718474  4.36077711] kg'
         lbval = x+y >> lb
-        assert np.allclose(lbval, np.array([ 3.20462262,  6.40924524,  9.61386787])) 
-        
+        assert np.allclose(lbval,
+            np.array([3.20462262,  6.40924524,  9.61386787])
+
     def test_numpy_subtraction(self):
         x = np.array([1,2,3]) * kg
         y = np.array([1,2,3]) * lb
-        assert repr(x-y) == '[ 0.54640763  1.09281526  1.63922289] kg'  
-        
+        assert repr(x-y) == '[ 0.54640763  1.09281526  1.63922289] kg'
+
     def test_numpy_slice(self):
         x = np.array([ 0.08400557, 0.19897197, 0.12407021, 0.11867142]) * kg/hr
         assert repr(x[:2]) == '[ 0.08400557  0.19897197] kg/hr'
         assert repr(x[3]) == '0.1187 kg/hr'
-
