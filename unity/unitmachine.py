@@ -6,10 +6,11 @@ import parsley
 
 
 def get_unit_text(value):
-    if value[1] == None:
+    if not value[1]:
         return ''
     else:
         return value[1]
+
 
 def calculate(start, pairs):
     print 'start={} pairs={}'.format(start, pairs)
@@ -25,24 +26,25 @@ def calculate(start, pairs):
         u1 = get_unit_text(result)
         u2 = get_unit_text(value)
         if op == '+':
-            assert u1==u2, "Units don't match: {} and {}".format(u1, u2)
+            assert u1 == u2, "Units don't match: {} and {}".format(u1, u2)
             result = (result[0] + value[0], u1)
         elif op == '-':
-            assert u1==u2, "Units don't match: {} and {}".format(u1, u2)
+            assert u1 == u2, "Units don't match: {} and {}".format(u1, u2)
             result = (result[0] - value[0], u1)
         elif op == '*':
             result = (result[0] * value[0], u1 + '*' + u2)
         elif op == '/':
             result = (result[0] / value[0], u1 + '/(' + u2 + ')')
-    if type(result)==tuple and result[1]=='':
+    if type(result) == tuple and result[1] == '':
         result = result[0]
     print result
     return result
 
+
 def join_parens_units(parens_result, units):
-    if units==None:
+    if units is None:
         units = ''
-    if type(parens_result)==tuple:
+    if type(parens_result) == tuple:
         return (parens_result[0], parens_result[1]+'*'+units)
     else:
         return (parens_result, units)
