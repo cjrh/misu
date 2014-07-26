@@ -51,6 +51,7 @@ def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
     if mustCreateMetricPrefixes:
         createMetricPrefixes(first_symbol, metricSkipFunction)
 
+
 def plot_quantities(ax, x, xunits, y, yunits, series_label,
                     y_axlabel=None, x_axlabel=None):
     ''' Utility function that will include the units into the plot.'''
@@ -84,17 +85,22 @@ createUnit('K kelvin', Quantity(1.0),
            unitCategory='Temperature')
 createUnit('R rankine', K*5./9.)
 
+
 def temperature_value_from_celsius(celsius):
     return (celsius - 273.15)*K
+
 
 def temperature_change_from_celsius(celsius):
     return celsius * K
 
+
 def temperature_value_from_fahrenheit(fahrenheit):
     return (fahrenheit + 459.67) * R
 
+
 def temperature_change_from_fahrenheit(fahrenheit):
     return fahrenheit * R
+
 
 createUnit('ca candela cd', Quantity(1.0), valdict=dict(ca=1.0), mustCreateMetricPrefixes=False, unitCategory='Luminous intensity')
 createUnit('mol mole moles', Quantity(1.0), valdict=dict(mole=1.0), mustCreateMetricPrefixes=True, unitCategory='Substance')
@@ -163,7 +169,7 @@ createUnit('wk wks week weeks', 604800 * s)
 createUnit('m2 square_metre_SI_unit', 1 * m ** 2, unitCategory='Area')
 
 createUnit('acre_international  ac ', 4046.8564224 * m2)
-createUnit('acre_US_survey  ac ', 4046.873 * m2 )
+createUnit('acre_US_survey  ac ', 4046.873 * m2)
 createUnit('are', 100 * m2)
 createUnit('barn', 1e-28 * m2)
 createUnit('barony ', 1.618742e7 * m2)
@@ -368,7 +374,7 @@ createUnit('GPM gallon_US_fluid_per_minute', 6.30901964e-5 * m3/s)
 createUnit('LPM litre_per_minute', 1.6e-5 * m3/s)
 
 # Force
-createUnit('atomic_unit_of_force ',  8.23872206e-8 * N )
+createUnit('atomic_unit_of_force ',  8.23872206e-8 * N)
 createUnit('dyn dyne dynes dyne_cgs_unit', 1e-5 * N)
 createUnit('kgf kp Gf kilogram_force kilopond grave_force', 9.80665 * N)
 createUnit('kip kip_force kipf klbf ', 4.4482216152605e3 * N)
@@ -382,9 +388,9 @@ createUnit('tnf ton_force', 8.896443230521e3 * N)
 #Length
 createUnit('nm nanometre  nanometres', 1e-9 * m)
 createUnit('angstrom ', 0.1 * nm)
-createUnit('AU astronomical_unit AU', 149597870700 * m )
+createUnit('AU astronomical_unit AU', 149597870700 * m)
 createUnit('barleycorn ', 8.46e-3 * m)
-createUnit('a0 bohr atomic_unit_of_length', 5.2917720859e-11 * m )
+createUnit('a0 bohr atomic_unit_of_length', 5.2917720859e-11 * m)
 createUnit('cable_length_imperial ', 185.3184 * m)
 createUnit('cable_length_International ', 185.2 * m)
 createUnit('cable_length_US ', 219.456 * m)
@@ -431,7 +437,7 @@ createUnit('NM nmi nautical_mile_international', 1852 * m)
 createUnit('nautical_mile_US_pre_1954 ', 1853.248 * m)
 createUnit('pace ', 0.762 * m)
 createUnit('palm ', 0.0762 * m)
-createUnit('parsec  pc ', 3.08567782e16 * m )
+createUnit('parsec  pc ', 3.08567782e16 * m)
 createUnit('pt point_American_English', 0.000351450 * m)
 createUnit('point_Didot_European', 0.00037593985 * m)
 createUnit('point_PostScript', 0.0003527 * m)
@@ -444,12 +450,12 @@ createUnit('spat  ', 1e12 * m)
 createUnit('stick ', 0.0508 * m)
 createUnit('pm stigma  bicron_picometre', 1e-12 * m)
 createUnit('twp twip', 1.7638e-5 * m)
-createUnit('xu x_unit siegbahn', 1.0021e-13 * m )
+createUnit('xu x_unit siegbahn', 1.0021e-13 * m)
 createUnit('yd yard yard_International', 0.9144 * m)
 
 # Mass
 createUnit('AMU atomic_mass_unit_unified', 1.66053873e-27 * kg)
-createUnit('me atomic_unit_of_mass  electron_rest_mass', 9.10938215e-31 * kg )
+createUnit('me atomic_unit_of_mass  electron_rest_mass', 9.10938215e-31 * kg)
 createUnit('bag_coffee ', 60 * kg)
 createUnit('bag_Portland_cement ', 42.63768278 * kg)
 createUnit('barge ', 20411.65665 * kg)
@@ -515,7 +521,7 @@ createUnit('horsepower_imperial_mechanical  hp ', 745.69987158227022 * W)
 createUnit('horsepower_metric  hp ', 735.49875 * W)
 createUnit('litre_atmosphere_per_minute ', 1.68875 * W)
 createUnit('litre_atmosphere_per_second ', 101.325 * W)
-createUnit('lusec  lusec ', 1.333e-4 * W)
+createUnit('lusec lusec ', 1.333e-4 * W)
 createUnit('poncelet  p ', 980.665 * W)
 createUnit('square_foot_equivalent_direct_radiation  sq_ft_EDR ', 70.337057 * W)
 createUnit('ton_of_air_conditioning ', 3504 * W)
@@ -523,27 +529,27 @@ createUnit('ton_of_refrigeration_imperial ', 3.938875e3 * W)
 createUnit('ton_of_refrigeration_IT ', 3.516853e3 * W)
 
 # Pressure
-createUnit('atm atmosphere_standard', 101325 * Pa )
-createUnit('atmosphere_technical  at ', 9.80665e4 * Pa )
+createUnit('atm atmosphere_standard', 101325 * Pa)
+createUnit('atmosphere_technical  at ', 9.80665e4 * Pa)
 createUnit('bar', 1e5 * Pa)
 createUnit('barye_cgs_unit ', 0.1 * Pa)
-createUnit('centimetre_of_mercury  cmHg ', 1.33322e3 * Pa )
-createUnit('centimetre_of_water_4degC  cmH2O ', 98.0638 * Pa )
-createUnit('foot_of_mercury_conventional  ftHg ', 40.63666e3 * Pa )
-createUnit('foot_of_water_39_2_F  ftH2O ', 2.98898e3 * Pa )
-createUnit('inch_of_mercury_conventional  inHg ', 3.386389e3 * Pa )
-createUnit('inch_of_water_39_2_F  inH2O ', 249.082 * Pa )
-createUnit('kilogram_force_per_square_millimetre ', 9.80665e6 * Pa )
-createUnit('kip_per_square_inch  ksi ', 6.894757e6 * Pa )
-createUnit('micron_micrometre_of_mercury  mHg ', 0.1333224 * Pa )
-createUnit('mmHg millimetre_of_mercury', 133.3224 * Pa )
+createUnit('centimetre_of_mercury  cmHg ', 1.33322e3 * Pa)
+createUnit('centimetre_of_water_4degC  cmH2O ', 98.0638 * Pa)
+createUnit('foot_of_mercury_conventional  ftHg ', 40.63666e3 * Pa)
+createUnit('foot_of_water_39_2_F  ftH2O ', 2.98898e3 * Pa)
+createUnit('inch_of_mercury_conventional  inHg ', 3.386389e3 * Pa)
+createUnit('inch_of_water_39_2_F  inH2O ', 249.082 * Pa)
+createUnit('kilogram_force_per_square_millimetre ', 9.80665e6 * Pa)
+createUnit('kip_per_square_inch  ksi ', 6.894757e6 * Pa)
+createUnit('micron_micrometre_of_mercury  mHg ', 0.1333224 * Pa)
+createUnit('mmHg millimetre_of_mercury', 133.3224 * Pa)
 createUnit('millimetre_of_water_3_98_C  mmH2O ', 9.80638 * Pa)
-createUnit('pz pieze_mts_unit  ', 1e3 * Pa )
-createUnit('psf pound_per_square_foot', 47.88026 * Pa )
-createUnit('psi pound_per_square_inch', 6.894757e3 * Pa )
-createUnit('poundal_per_square_foot ', 1.488164 * Pa )
+createUnit('pz pieze_mts_unit  ', 1e3 * Pa)
+createUnit('psf pound_per_square_foot', 47.88026 * Pa)
+createUnit('psi pound_per_square_inch', 6.894757e3 * Pa)
+createUnit('poundal_per_square_foot ', 1.488164 * Pa)
 createUnit('short_ton_per_square_foot ', 95.760518e3 * Pa)
-createUnit('torr', 133.3224 * Pa )
+createUnit('torr', 133.3224 * Pa)
 
 # Velocity
 createUnit('metre_per_second_SI_unit ', 1 * m/s, unitCategory='Velocity')
@@ -716,10 +722,10 @@ if __name__ == '__main__':
     def Reynolds_number(rho, v, L, mu):
         return rho * v * L / mu
 
-    data=dict(rho=1000*kg/m3, v=12*m/s, L=5*inch, mu=1e-3*Pa*s)
+    data = dict(rho=1000*kg/m3, v=12*m/s, L=5*inch, mu=1e-3*Pa*s)
     print('Re = {}'.format(Reynolds_number(**data)))
 
-    data=dict(rho=1000*kg/m3, v=12*m/s, L=1.5*inch, mu=1.011e-3*Pa*s)
+    data = dict(rho=1000*kg/m3, v=12*m/s, L=1.5*inch, mu=1.011e-3*Pa*s)
     Re = Reynolds_number(**data)
     print('Re = {:.2e}'.format(Reynolds_number(**data)))
 
@@ -770,13 +776,13 @@ if __name__ == '__main__':
     flow = 1*m3/s
     m.setRepresent(as_unit=inch, symbol='"')
     Pa.setRepresent(as_unit=bar, symbol='bar')
-    for D in [x*inch for x in range(1,11)]:
+    for D in [x*inch for x in range(1, 11)]:
         v = flow / D**2 / math.pi * 4
         rho = 1000*kg/m3
         Re = Reynolds_number(rho=rho, v=v, L=D, mu=1e-3*Pa*s)
         f = friction_factor_Colebrook(1e-5*m, D, Re)
-        print('Pressure drop at diameter {} = {}').format(
-            D, pressure_drop(f,D,rho, v, L=1*m))
+        print('Pressure drop at diameter {} = {}'.format(
+            D, pressure_drop(f, D, rho, v, L=1*m)))
 
     pbrk()
     print('Few more checks')
@@ -785,6 +791,6 @@ if __name__ == '__main__':
     v = 101*m/s
     print('101 m/s -> ft/hr = {}').format(v.convert(ft/hr))
 
-    dbg=1
+    dbg = 1
     import numpy as np
-    x = np.array([1,2,3])
+    x = np.array([1, 2, 3])
