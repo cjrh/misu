@@ -8,7 +8,8 @@ In the spyder IDE, just hit F10 on this file to have profiler output
 generated.
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
 import addmodule
 addmodule.addpath()
@@ -16,9 +17,11 @@ from unity import *
 
 COUNT = 1000000
 
+
 def testu():
     for x in xrange(COUNT):
         y = (100*kg/m**3) * (4000*m**3) / (210*g/cm**3 + x*kg/m**3)
+
 
 def test():
     for x in xrange(COUNT):
