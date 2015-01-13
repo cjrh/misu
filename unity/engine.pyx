@@ -19,8 +19,10 @@ cdef class QuantityNP
 class EIncompatibleUnits(Exception):
     pass
 
+
 class ESignatureAlreadyRegistered(Exception):
     pass
+
 
 ctypedef fused Quant:
     Quantity
@@ -43,15 +45,15 @@ ctypedef fused magtype:
 
 
 cdef inline int isQuantity(var):
-    ''' checks whether var is an instance of type 'Quantity'.
+    ''' Checks whether var is an instance of type 'Quantity'.
     Returns True or False.'''
     return isinstance(var, Quantity)
 
 
 cdef inline int isQuantityT(Quant var):
     ''' SPECIALIZED VERSION
-    checks whether var is an instance of type 'Quantity'.
-    Returns True or False.'''
+    Checks whether var is an instance of type 'Quantity' or
+    'QuantityNP'. Returns True or False.'''
     return isinstance(var, Quantity) or isinstance(var, QuantityNP)
 
 
@@ -107,12 +109,12 @@ cdef class _UnitRegistry:
 
     # For defined quantities, e.g. LENGTH, MASS etc.
     cdef dict _unit_by_name # A name can mean only one unit
-    cdef dict _name_by_unit # One unit type can have multiple names, so the 
+    cdef dict _name_by_unit # One unit type can have multiple names, so the
                             # values are lists.
 
     def __cinit__(self):
         self._symbol_cache = {}
-        self._inverse_symbol_cache = {} # This one is keyed by quantity, with 
+        self._inverse_symbol_cache = {} # This one is keyed by quantity, with
         self._representation_cache = {} # ... a list of symbols as value.
         self._unit_by_name = {}
         self._name_by_unit = {}
@@ -130,7 +132,7 @@ cdef class _UnitRegistry:
         # Add the list of symbols. We can use this dict to find all the
         # allowed symbols for a given quantity. For example, 'm metre metres'
         # if we have a quantity and can find it in the inverse symbol cache,
-        # we will be able to see that each of 'm', 'metre' and 'metres' are 
+        # we will be able to see that each of 'm', 'metre' and 'metres' are
         # valid symbols for this quantity definition.
         self._inverse_symbol_cache[quantity_as_tuple] += symbols_list
 
@@ -237,7 +239,7 @@ cdef class Quantity:
         self.unit[:] = [0,0,0,0,0,0,0]
 
 #    def __array_wrap__(array, context=None):
-#        return 
+#        return
 
     cdef inline tuple unit_as_tuple(self):
         return tuple(self.units())
@@ -375,13 +377,13 @@ cdef class Quantity:
         cdef QuantityNP xqn
         cdef QuantityNP yqn
         cdef QuantityNP ansn
-        
+
         cdef Quantity xq
         cdef Quantity yq
         cdef Quantity ans
-        
+
         cdef int i
-        
+
         if isinstance(x, np.ndarray) or isinstance(y, np.ndarray) \
             or isinstance(x, QuantityNP) or isinstance(y, QuantityNP):
             xqn = assertQuantityNP(x)
@@ -400,13 +402,13 @@ cdef class Quantity:
         cdef QuantityNP xqn
         cdef QuantityNP yqn
         cdef QuantityNP ansn
-        
+
         cdef Quantity xq
         cdef Quantity yq
         cdef Quantity ans
-        
+
         cdef int i
-        
+
         if isinstance(x, np.ndarray) or isinstance(y, np.ndarray) \
             or isinstance(x, QuantityNP) or isinstance(y, QuantityNP):
             xqn = assertQuantityNP(x)
@@ -420,7 +422,7 @@ cdef class Quantity:
             for i from 0 <= i < 7:
                 ans.unit[i] = xq.unit[i]
             return ans
-        
+
     def unpack_or_default(self, other):
         try:
             return other.unit
@@ -431,18 +433,18 @@ cdef class Quantity:
         cdef QuantityNP xqn
         cdef QuantityNP yqn
         cdef QuantityNP ansn
-        
+
         cdef Quantity xq
         cdef Quantity yq
         cdef Quantity ans
-        
+
         cdef int i
-        
+
         if isinstance(x, np.ndarray) or isinstance(y, np.ndarray) \
             or isinstance(x, QuantityNP) or isinstance(y, QuantityNP):
             xqn = assertQuantityNP(x)
             yqn = assertQuantityNP(y)
-            ansn = QuantityNP.__new__(QuantityNP, xqn.magnitude * yqn.magnitude)            
+            ansn = QuantityNP.__new__(QuantityNP, xqn.magnitude * yqn.magnitude)
             for i from 0 <= i < 7:
                 ansn.unit[i] = xqn.unit[i] + yqn.unit[i]
             return ansn
@@ -563,8 +565,8 @@ cdef class QuantityNP:
 
     #def __array__(self, dtype=None):
     #    return self.magnitude
-        
-    ## We have to disable this for now. ufuncs in danger of giving the wrong 
+
+    ## We have to disable this for now. ufuncs in danger of giving the wrong
     ## answer.
     #def __getattr__(self, name):
     #    ''' All member lookup not found here get passed to the magnitude value. '''
@@ -576,7 +578,7 @@ cdef class QuantityNP:
 #    def __array_wrap__(self, array, context=None):
 #        print self
 #        print array
-#        
+#
 #        cdef QuantityNP ans = assertQuantityNP(array)
 #        cdef int i
 #        for i from 0 <= i < 7:
@@ -594,7 +596,7 @@ cdef class QuantityNP:
         cdef QuantityNP ans = QuantityNP.__new__(QuantityNP, self.magnitude[val])
         copyunits(self, ans)
         return ans
-        
+
     cdef inline tuple unit_as_tuple(self):
         return tuple(self.units())
 
@@ -831,7 +833,7 @@ cdef class QuantityNP:
 
     def __rshift__(self, other):
         return self.convert(other)
-        
+
     def copy(self):
         cdef QuantityNP ans = QuantityNP.__new__(QuantityNP, self.magnitude)
         cdef int i

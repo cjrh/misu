@@ -13,7 +13,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
-    version='1.0.0',
+    version='0.1.0',
     description='Fast quantities',
     long_description=long_description,
     #this is the project's main homepage.
