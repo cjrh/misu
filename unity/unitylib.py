@@ -580,7 +580,19 @@ createUnit('kg_hr', kg/hr, unitCategory="Mass flowrate")
 kg_hr.setRepresent(as_unit=kg_hr, symbol='kg/hr')
 createUnit('kmol_hr', kmol/hr, unitCategory="Molar flowrate")
 kmol_hr.setRepresent(as_unit=kmol_hr, symbol='kmol/hr')
-ncmh = Ncmh = (m3/hr) * (101325*Pa) / (8.314*J/mol/K) / (273.15*K)
+ncm = Ncm = (m3) * (101325*Pa) / (8.314*J/mol/K) / (273.15*K)
+ncmh = Ncmh = ncm / hr
+# NOTE 15 C:
+scf = (ft) * (101325*Pa) / (8.314*J/mol/K) / ((273.15+15)*K)
+scfm = scf / minute
+scfd = scf / day
+MMSCFD = scfd / 1e6
+SP_OPEC = 101.560 * kPa
+# NOTE! http://goldbook.iupac.org/S05910.html
+SP_STP = 1e5 * Pa # http://goldbook.iupac.org/S06036.html
+MMbbl = bbl / 1e6
+MMscf = scf / 1e6
+bcf = Bcf = scf / 1e9
 
 # Engineering quantities
 createUnit('kJ_kg_K', kJ/kg/K, unitCategory="Heat capacity mass")
