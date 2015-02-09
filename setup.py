@@ -17,7 +17,7 @@ setup(
     description='Fast quantities',
     long_description=long_description,
     #this is the project's main homepage.
-    url='https://github.com/cjrh/unity'
+    url='https://github.com/cjrh/unity',
     # Author details
     author='Caleb Hattingh',
     author_email='caleb.hattingh@gmail.com',
