@@ -1,5 +1,7 @@
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
+from setuptools import setup
+from Cython.Build import cythonize
+import numpy
 from codecs import open # To use a consistent encoding
 from os import path
 
@@ -41,5 +43,7 @@ setup(
         ],
     # What does your project relate to?
     keywords='math science engineering physics quantities units',
-    packages=['unity']
+    packages=['misu'],
+    ext_modules = cythonize("misu/*.pyx"),
+    include_dirs=[numpy.get_include()]
     )
