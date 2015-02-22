@@ -11,7 +11,7 @@ with open(path.join(here, 'README'), encoding='utf-8') as f:
     long_description=f.read()
 
 setup(
-    name='unity',
+    name='misu',
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
@@ -19,7 +19,7 @@ setup(
     description='Fast quantities',
     long_description=long_description,
     #this is the project's main homepage.
-    url='https://github.com/cjrh/unity',
+    url='https://github.com/cjrh/misu',
     # Author details
     author='Caleb Hattingh',
     author_email='caleb.hattingh@gmail.com',
