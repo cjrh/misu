@@ -2,14 +2,14 @@
 recursive-include docs/_build/html *
 
 #demos
-recursive-include unity/demos *
+recursive-include misu/demos *
 
 #tests
-recursive-include unity/tests *
+recursive-include misu/tests *
 
 #cython file
-include unity/engine.c
-include unity/Makefile
+include misu/engine.c
+include misu/Makefile
 
 #Misc
 include CHANGES.txt
