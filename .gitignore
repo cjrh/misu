@@ -1,6 +1,8 @@
 Conversion of units - Wikipedia, the free encyclopedia_files/
 Unit Conversion Table_files/
 *.pyc
+*.pyd
+*.so
 *.pdf
 *.o
 *.prof
