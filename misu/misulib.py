@@ -1,5 +1,6 @@
 # coding=utf8
-from __future__ import division, print_function, unicode_literals
+from __future__ import division, print_function 
+import sys
 import traceback
 import math
 from misu.engine import *
@@ -626,9 +627,14 @@ g_mol.setRepresent(as_unit=g_mol, symbol='g/mol')
 def dimensions(**_params_):
     def check_types(_func_, _params_ = _params_):
         def modified(*args, **kw):
-            arg_names = _func_.func_code.co_varnames
+            if sys.version_info.major == 2:
+                arg_names = _func_.func_code.co_varnames
+            elif sys.version_info.major == 3:
+                arg_names = _func_.__code__.co_varnames
+            else:
+                raise Exception('Invalid Python version!')
             kw.update(zip(arg_names, args))
-            for name, category in _params_.iteritems():
+            for name, category in _params_.items():
                 param = kw[name]
                 assert isinstance(param, Quantity), \
                     '''Parameter "{}" must be an instance of class Quantity
