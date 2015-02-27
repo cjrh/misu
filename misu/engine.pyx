@@ -503,6 +503,31 @@ cdef class Quantity:
         else:
             raise Exception('Impossible.')
 
+    def __richcmp__(x, y, int op):
+        """
+        <   0
+        ==  2
+        >   4
+        <=  1
+        !=  3
+        >=  5
+        """
+        cdef Quantity xq = assertQuantity(x)
+        cdef Quantity yq = assertQuantity(y)
+        sameunits(xq, yq)
+        if op == 0:
+            return xq.magnitude > yq.magnitude
+        elif op == 1:
+            return xq.magnitude <= yq.magnitude
+        elif op == 2:
+            return xq.magnitude == yq.magnitude
+        elif op == 3:
+            return xq.magnitude != yq.magnitude
+        elif op == 4:
+            return xq.magnitude > yq.magnitude
+        elif op == 5:
+            return xq.magnitude >= yq.magnitude
+
     def convert(self, Quantity target_unit):
         assert isQuantity(target_unit), 'Target must be a quantity.'
         sameunits(self, target_unit)
