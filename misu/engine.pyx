@@ -69,7 +69,7 @@ cdef inline void copyunits(Quant source, Quant dest):
 
 
 QuantityType = {}
-cpdef addType(Quantity q, char* name):
+cpdef addType(Quantity q, str name):
     if q.unit_as_tuple() in QuantityType:
         raise Exception('This unit def already registered, owned by: {}'.format(
             QuantityType[q.unit_as_tuple()]))
