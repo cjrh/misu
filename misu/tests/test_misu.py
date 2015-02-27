@@ -1,4 +1,5 @@
 # Uses py.test.
+from __future__ import print_function
 import os
 import sys
 
@@ -40,17 +41,17 @@ class TestClass:
         assert repr(a - b) == '-1.158e+05 kg/hr'
 
     def test_multiplication(self):
-        assert repr(a * b) == '86.675 kg^2.0 s^-2.0'
+        assert '{:.3f}'.format(a * b) == '86.675 kg^2.0 s^-2.0'
 
     def test_division(self):
-        assert repr(a / b) == '0.0721084511105'
+        assert '{:.5f}'.format(a / b) == '0.07211'
 
     def test_incompatible_units(self):
         with pytest.raises(EIncompatibleUnits) as E:
-            print 2*m
+            print(2*m)
             x = 2.0*m + 3.0*kg
-        print E.value.message
-        assert E.value.message == 'Incompatible units: 2 m and 3 kg'
+        print(str(E.value))
+        assert str(E.value) == 'Incompatible units: 2 m and 3 kg'
 
     def test_operator_precedence(self):
         assert repr(2.0 * kg / s * 3.0) == '2.16e+04 kg/hr'
@@ -58,8 +59,9 @@ class TestClass:
         assert repr((1.0/m)**0.5) == '1.0 m^-0.5'
 
         assert repr(((kg ** 2.0)/(m))**0.5) == '1.0 m^-0.5 kg^1.0'
-        assert repr((1.56724 * (kg ** 2.0)/(m * (s**2.0)))**0.5) \
-            == '1.25189456425 m^-0.5 kg^1.0 s^-1.0'
+        # assert repr((1.56724 * (kg ** 2.0)/(m * (s**2.0)))**0.5) \
+        assert '{:.2f}'.format((1.56724 * (kg ** 2.0)/(m * (s**2.0)))**0.5) \
+            == '1.25 m^-0.5 kg^1.0 s^-1.0'
 
     def test_si_prefixes(self):
         assert 'Hz = {}'.format(Hz) == 'Hz = 1 Hz'
@@ -137,10 +139,10 @@ class TestClass:
 
         f = friction_factor_Colebrook(1e-6*m, 1.5*inch, Re)
         fH = friction_factor_Colebrook_Haaland(1e-6*m, 1.5*inch, Re)
-        assert 'At Re = {}, friction factor = {}'.format(Re, f) \
-            == 'At Re = 452225.519288, friction factor = 0.0137489883857'
-        assert 'At Re = {}, friction factorH = {}'.format(Re, fH) \
-            == 'At Re = 452225.519288, friction factorH = 0.0135940052381'
+        assert 'At Re = {:.2f}, friction factor = {:.5f}'.format(Re, f) \
+            == 'At Re = 452225.52, friction factor = 0.01375'
+        assert 'At Re = {:.2f}, friction factorH = {:.5f}'.format(Re, fH) \
+            == 'At Re = 452225.52, friction factorH = 0.01359'
 
         assert 'f.unitCategory() = {}'.format(f.unitCategory()) \
             == 'f.unitCategory() = Dimensionless'
