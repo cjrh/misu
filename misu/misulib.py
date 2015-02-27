@@ -2,8 +2,8 @@
 from __future__ import division, print_function, unicode_literals
 import traceback
 import math
-from engine import *
-from SIprefixes import SIprefixes_sym
+from misu.engine import *
+from misu.SIprefixes import SIprefixes_sym
 
 
 def createMetricPrefixes(symbol, skipfunction=None):
