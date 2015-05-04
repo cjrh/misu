@@ -1,5 +1,6 @@
 CHANGES.txt
 MANIFEST.in
+README.rst
 setup.py
 misu/SIprefixes.py
 misu/__init__.py
@@ -12,8 +13,11 @@ misu/unitmachine.py
 misu.egg-info/PKG-INFO
 misu.egg-info/SOURCES.txt
 misu.egg-info/dependency_links.txt
+misu.egg-info/pbr.json
+misu.egg-info/requires.txt
 misu.egg-info/top_level.txt
 misu/demos/demo_basics.py
 misu/demos/lies_and_damnedlies.py
 misu/tests/test_misu.py
 misu/tests/__pycache__/test_misu.cpython-27-PYTEST.pyc
+misu/tests/__pycache__/test_misu.cpython-34-PYTEST.pyc
