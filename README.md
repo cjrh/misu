@@ -111,19 +111,19 @@ other Python code.
 There are a bunch of other similar projects. I have not used any
 of them enough yet to provide a fair comparison:
 
-- [astropy.units]("http://astropy.readthedocs.org/en/latest/units/")
-- [Buckingham]("http://code.google.com/p/buckingham/")
-- [DimPy]("http://www.inference.phy.cam.ac.uk/db410/")
-- [Magnitude]("http://juanreyero.com/open/magnitude/")
-- [NumericalUnits]("https://pypi.python.org/pypi/numericalunits")
-- [Pint]("http://pint.readthedocs.org/")
-- [Python-quantities]("https://pypi.python.org/pypi/quantities")
-- [Scalar]("http://russp.us/scalar-guide.htm")
-- [Scientific.Physics.PhysicalQuantities]("http://dirac.cnrs-orleans.fr/ScientificPython/ScientificPythonManual/Scientific.Physics.PhysicalQuantities-module.html")
-- [SciMath]("http://scimath.readthedocs.org/en/latest/units/intro.html")
-- [sympy.physics.units]("http://docs.sympy.org/dev/modules/physics/units.html")
-- [udunitspy]("https://github.com/blazetopher/udunitspy")
-- [Units]("https://bitbucket.org/adonohue/units/")
-- [Unum]("https://bitbucket.org/kiv/unum/")
+- [astropy.units](http://astropy.readthedocs.org/en/latest/units/)
+- [Buckingham](http://code.google.com/p/buckingham/)
+- [DimPy](http://www.inference.phy.cam.ac.uk/db410/)
+- [Magnitude](http://juanreyero.com/open/magnitude/)
+- [NumericalUnits](https://pypi.python.org/pypi/numericalunits)
+- [Pint](http://pint.readthedocs.org/)
+- [Python-quantities](https://pypi.python.org/pypi/quantities)
+- [Scalar](http://russp.us/scalar-guide.htm)
+- [Scientific.Physics.PhysicalQuantities](http://dirac.cnrs-orleans.fr/ScientificPython/ScientificPythonManual/Scientific.Physics.PhysicalQuantities-module.html)
+- [SciMath](http://scimath.readthedocs.org/en/latest/units/intro.html)
+- [sympy.physics.units](http://docs.sympy.org/dev/modules/physics/units.html)
+- [udunitspy](https://github.com/blazetopher/udunitspy)
+- [Units](https://bitbucket.org/adonohue/units/)
+- [Unum](https://bitbucket.org/kiv/unum/)
 
 
