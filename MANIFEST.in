@@ -14,3 +14,5 @@ include misu/Makefile
 #Misc
 include CHANGES.txt
 include LICENSE.txt
+include README.md
+include README.rst
