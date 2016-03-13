@@ -21,3 +21,4 @@ misu/demos/lies_and_damnedlies.py
 misu/tests/test_misu.py
 misu/tests/__pycache__/test_misu.cpython-27-PYTEST.pyc
 misu/tests/__pycache__/test_misu.cpython-34-PYTEST.pyc
+misu/tests/__pycache__/test_misu.cpython-35-PYTEST.pyc

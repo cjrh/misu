@@ -1,3 +1,4 @@
+1.0.3 Cleaned up tests.
 1.0.2 Needed a new release to fix a bad file upload(!)
 1.0.1 Changed name to `misu`
 1.0.0 First version published to PyPI
