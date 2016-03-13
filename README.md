@@ -7,7 +7,84 @@ which means **measurement** (in Italian).
 Demo
 ----
 
-Demo to go here.
+Most of the time you will probably work with `misu` interactively,
+and it will be most convenient to import the entire namespace:
+
+```python
+from misu import *
+
+mass = 100*kg
+print(mass >> lb)
+```
+
+The symbol `kg` got imported from the `misu` package. We redefine
+the shift operator to perform inline conversions. The code above
+produces:
+
+```
+220.46226218487757
+```
+
+There are many units already defined, and it is easy to add more.
+Here we convert the same quantity into ounces:
+
+```python
+print(mass >> oz)
+```
+
+output:
+
+```
+3571.4285714285716
+```
+
+What you see above would be useless on its own. What you really
+need is to be able to perform consistent calculations with
+quantities expressed in different, but compatible units:
+
+
+```python
+mass = 10*kg + 20*lb
+print(mass)
+```
+
+output:
+
+```
+19.07 kg
+```
+
+For addition and subtraction, `misu` will ensure that only
+consistent units can be used.  Multiplication and division
+will produce new units:
+
+```python
+distance = 100*metres
+time = 9.2*seconds
+​
+speed = distance / time
+print(speed)
+```
+
+output:
+
+```
+10.87 m/s
+```
+
+As before, it is trivially easy to express that quantity in
+different units of compatible dimensions:
+
+```python
+speed >> km/hr
+print(speed >> km/hr)
+```
+
+output:
+
+```
+39.130434782608695
+```
 
 Introduction
 ------------
@@ -27,22 +104,31 @@ Every feature has been added in response to a personal need.
 
 #### Features
 
-- Written as a Cython extension module (for speed).
+- Speed optimized. `misu` is very fast! Heavy math code in Python
+  will be around only 5X slower when used with `misu`. This is
+  much faster than other quantities packages for Python.
+
+- Written as a Cython extension module.
  Speed benefits carry over when using
 `misu` from your own Cython module (a `.pxd` is 
 provided for linking).
+
+- When an operation involving incompatible units is attempted,
+  an `EIncompatibleUnits` exception is raised, with a clear
+  explanation message about which units were inconsistent.
+
 - Decorators for functions to enforce dimensions
 
 ```python
-@dimensions(x=Length, y=Mass)
+@dimensions(x='Length', y='Mass')
 def f(x, y):
     return x/y
 
 f(2*m, 3*kg)         # Works
 f(200*feet, 3*tons)  # Works
 
-f(2*joules, 3*kelvin)  # raises UnitsError
-f(2*m, 3)              # raises UnitsError
+f(2*joules, 3*kelvin)  # raises AssertionError
+f(2*m, 3)              # raises AssertionError
 ```
 - An operator for easily stripping the units 
 component to obtain a plain numerical value
@@ -89,8 +175,9 @@ In these situations it is typical to first cast quantities into numerical values
 (doubles, say), perform the speed-critical calculations (perhaps call into a 
 C-library), and then re-cast the result back into a quantity and return that from
 a function.
+
 ```python
-@dimensions(x = Length, y = Mass):
+@dimensions(x='Length', y='Mass'):
 def f(x, y):
     x = x >> metre
     y = y >> ounces
@@ -98,6 +185,7 @@ def f(x, y):
     return answer * BTU 
 
 ```
+
 This way you can still easily wrap performance-critical calculations with 
 robust unit-handling.
 
