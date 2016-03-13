@@ -4,6 +4,16 @@ misu
 `misu` is short for "misura", 
 which means **measurement** (in Italian).
 
+Install
+-------
+
+```
+pip install misu
+```
+
+Pre-compiled wheels are provided for Pythons 2.7, 3.4 and 3.5,
+on both OS X and Windows.
+
 Demo
 ----
 
