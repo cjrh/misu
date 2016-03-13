@@ -32,6 +32,7 @@ Every feature has been added in response to a personal need.
 `misu` from your own Cython module (a `.pxd` is 
 provided for linking).
 - Decorators for functions to enforce dimensions
+
 ```python
 @dimensions(x=Length, y=Mass)
 def f(x, y):
@@ -45,6 +46,7 @@ f(2*m, 3)              # raises UnitsError
 ```
 - An operator for easily stripping the units 
 component to obtain a plain numerical value
+
 ```python
 mass = 100 * kg
 mass_lb = mass >> lb
@@ -52,6 +54,7 @@ mass_lb = mass >> lb
 duty = 50 * MW
 duty_BTU_hr = duty >> BTU / hr
 ```
+
 - An enormous amount of redundancy in the naming
 of various units. This means that `m`, `metre`, 
 `metres`, `METRE`, `METRES` will all work.
