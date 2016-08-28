@@ -1,3 +1,4 @@
+from __future__ import print_function
 introduction = """
 
 misu - physical quantities (units) in Python.
@@ -144,16 +145,16 @@ decorators="""
 
 """
 
-print introduction
+print(introduction)
 
 for x in lines.split('\n'):
     if len(x.strip()) == 0:
-        print ''
+        print('')
         continue
     
     if x[0] == '#':
-        print x[1:].strip()
+        print(x[1:].strip())
     else:
-        print '>>> ' + x
+        print('>>> ' + x)
         exec(x)
 

@@ -1,7 +1,7 @@
 from __future__ import division
+from __future__ import print_function
 
 import traceback
-import sys
 import parsley
 
 
@@ -13,7 +13,7 @@ def get_unit_text(value):
 
 
 def calculate(start, pairs):
-    print 'start={} pairs={}'.format(start, pairs)
+    print('start={} pairs={}'.format(start, pairs))
     result = start
     for op, value in pairs:
         # value is now a tuple. [0] is the magnitude, [1] is the unit
@@ -37,7 +37,7 @@ def calculate(start, pairs):
             result = (result[0] / value[0], u1 + '/(' + u2 + ')')
     if type(result) == tuple and result[1] == '':
         result = result[0]
-    print result
+    print(result)
     return result
 
 
@@ -91,23 +91,23 @@ expr2 = value:left muldiv*:right -> calculate(left, right)
 """, {"calculate": calculate, "join_parens_units": join_parens_units})
 
 if __name__ == '__main__':
-    print 'Try some operations (q to end):'
-    print
-    print '> ',
+    print('Try some operations (q to end):')
+    print()
+    print('> ', end=' ')
     while True:
         expr = raw_input()
         if expr.lower() == 'q':
-            print 'Exiting...'
+            print('Exiting...')
             break
         try:
-            print x(expr).expr()
+            print(x(expr).expr())
         except:
-            print
-            print "Error: "
-            print
-            print traceback.format_exc()
-            print
-        print '> ',
+            print()
+            print("Error: ")
+            print()
+            print(traceback.format_exc())
+            print()
+        print('> ', end=' ')
 
-    #print x("17+34").expr()
-    #print x("18").expr()
+    #print(x("17+34").expr())
+    #print(x("18").expr())
