@@ -1,3 +1,11 @@
+from __future__ import print_function
+
+import os
+import sys
+
+
+sys.path.insert(0, os.path.abspath(".."))
+
 introduction = """
 
 misu - physical quantities (units) in Python.
@@ -46,11 +54,6 @@ With this target in mind, misu was born.
 
 Demonstrations
 =============="""
-
-import os, sys
-sys.path.insert(0, os.path.abspath(".."))
-
-from misu import *
 
 lines = """
 # Create a new variable to store pressure:
@@ -140,20 +143,19 @@ print 1*dimensionless
 
 """
 
-decorators="""
+decorators = """
 
 """
 
-print introduction
+print(introduction)
 
+from misu import *
 for x in lines.split('\n'):
     if len(x.strip()) == 0:
-        print ''
+        print('')
         continue
-    
     if x[0] == '#':
-        print x[1:].strip()
+        print(x[1:].strip())
     else:
-        print '>>> ' + x
+        print('>>> ' + x)
         exec(x)
-
