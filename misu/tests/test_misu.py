@@ -16,11 +16,12 @@ from misu import (
 )
 from misu import EIncompatibleUnits, dimensions, QuantityNP
 
+
 a = 2.5 * kg / s
 b = 34.67 * kg / s
 
 
-def lookupType(quantity):
+def lookup_type(quantity):
     return 'Quantity: {} Type: {}'.format(quantity, quantity.unitCategory())
 
 
@@ -33,14 +34,16 @@ def test_format_simple():
     assert '{:.2f}'.format(b) == '124812.00 kg/hr'
 
 
-# def test_format_left_align():
-#     fmtstr = '{:<20.2f}'.format(b)
-#     assert fmtstr == '124812.00 kg/hr     '
-#
-#
-# def test_format_right_align():
-#     fmtstr = '{:>20.2f}'.format(b)
-#     assert fmtstr == '     124812.00 kg/hr'
+@pytest.mark.xfail(reason='This requires further work.')
+def test_format_left_align():
+    fmtstr = '{:<20.2f}'.format(b)
+    assert fmtstr == '124812.00 kg/hr     '
+
+
+@pytest.mark.xfail(reason='This requires further work.')
+def test_format_right_align():
+    fmtstr = '{:>20.2f}'.format(b)
+    assert fmtstr == '     124812.00 kg/hr'
 
 
 def test_addition():
@@ -90,17 +93,17 @@ def test_conversions():
 
 
 def test_unit_category():
-    assert lookupType(BTU) == 'Quantity: 1054 J Type: Energy'
-    assert lookupType(lb) == 'Quantity: 0.4536 kg Type: Mass'
-    assert lookupType(200*MW * 10*d) \
-        == 'Quantity: 1.728e+14 J Type: Energy'
+    assert lookup_type(BTU) == 'Quantity: 1054 J Type: Energy'
+    assert lookup_type(lb) == 'Quantity: 0.4536 kg Type: Mass'
+    assert lookup_type(200 * MW * 10 * d) \
+           == 'Quantity: 1.728e+14 J Type: Energy'
     #J.setRepresent(as_unit=GJ, symbol='GJ')
-    #assert lookupType(200*MW * 10*d)
+    #assert lookup_type(200*MW * 10*d)
 
 
 def test_func_decorator1():
-    ''' This tests the function decorator on Reynolds number,
-    a standard dimensionless number in process engineering.'''
+    """ This tests the function decorator on Reynolds number,
+    a standard dimensionless number in process engineering."""
 
     # Function definition
     @dimensions(rho='Mass density', v='Velocity', L='Length',
