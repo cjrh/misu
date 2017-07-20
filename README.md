@@ -187,7 +187,7 @@ C-library), and then re-cast the result back into a quantity and return that fro
 a function.
 
 ```python
-@dimensions(x='Length', y='Mass'):
+@dimensions(x='Length', y='Mass')
 def f(x, y):
     x = x >> metre
     y = y >> ounces
