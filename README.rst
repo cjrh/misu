@@ -96,7 +96,6 @@ units of compatible dimensions:
 
 .. code:: python
 
-    speed >> km/hr
     print(speed >> km/hr)
 
 output:
@@ -193,7 +192,7 @@ result back into a quantity and return that from a function.
 
 .. code:: python
 
-    @dimensions(x='Length', y='Mass'):
+    @dimensions(x='Length', y='Mass')
     def f(x, y):
         x = x >> metre
         y = y >> ounces
