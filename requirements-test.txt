@@ -1,0 +1,6 @@
+cython
+numpy
+-e .
+pytest
+pytest-cov
+coveralls
