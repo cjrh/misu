@@ -1,3 +1,24 @@
+.. image:: https://travis-ci.org/cjrh/misu.svg?branch=master
+    :target: https://travis-ci.org/cjrh/misu
+
+.. image:: https://coveralls.io/repos/github/cjrh/misu/badge.svg?branch=master
+    :target: https://coveralls.io/github/cjrh/misu?branch=master
+
+.. image:: https://img.shields.io/pypi/pyversions/misu.svg
+    :target: https://pypi.python.org/pypi/misu
+
+.. image:: https://img.shields.io/github/tag/cjrh/misu.svg
+    :target: https://img.shields.io/github/tag/cjrh/misu.svg
+
+.. image:: https://img.shields.io/badge/install-pip%20install%20misu-ff69b4.svg
+    :target: https://img.shields.io/badge/install-pip%20install%20misu-ff69b4.svg
+
+.. image:: https://img.shields.io/pypi/v/misu.svg
+    :target: https://img.shields.io/pypi/v/misu.svg
+
+.. image:: https://img.shields.io/badge/calver-YYYY.MM.MINOR-22bfda.svg
+    :target: http://calver.org/
+
 misu
 ====
 
@@ -177,7 +198,7 @@ result back into a quantity and return that from a function.
         x = x >> metre
         y = y >> ounces
         <code that assumes meters and ounces, returns value in BTU>
-        return answer * BTU 
+        return answer * BTU
 
 This way you can still easily wrap performance-critical calculations
 with robust unit-handling.
