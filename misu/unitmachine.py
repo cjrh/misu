@@ -95,7 +95,7 @@ if __name__ == '__main__':
     print()
     print('> ', end=' ')
     while True:
-        expr = raw_input()
+        expr = input()
         if expr.lower() == 'q':
             print('Exiting...')
             break
