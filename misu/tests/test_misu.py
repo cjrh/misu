@@ -239,27 +239,27 @@ def test_func_decorator2():
 
 def test_numpy_basic():
     x = np.array([1, 2, 3]) * kg
-    assert repr(x) == '[1. 2. 3.] kg'
+    assert repr(x) == '[ 1.  2.  3.] kg'
 
 
 def test_numpy_operations():
     x = np.array([1, 2, 3]) * kg
     y = x / (20*minutes)
-    assert repr(y) == '[3. 6. 9.] kg/hr'
+    assert repr(y) == '[ 3.  6.  9.] kg/hr'
     assert repr(y**2) \
-        == '[6.94444444e-07 2.77777778e-06 6.25000000e-06] kg^2.0 s^-2.0'
+        == '[ 6.94444444e-07  2.77777778e-06  6.25000000e-06] kg^2.0 s^-2.0'
 
 
 def test_npclass():
     x = np.array([1.0, 2.0, 3.0])
     y = QuantityNP(x) * kg
-    assert repr(y) == '[1. 2. 3.] kg'
+    assert repr(y) == '[ 1.  2.  3.] kg'
 
 
 def test_numpy_addition():
     x = np.array([1, 2, 3]) * kg
     y = np.array([1, 2, 3]) * lb
-    assert repr(x+y) == '[1.45359237 2.90718474 4.36077711] kg'
+    assert repr(x+y) == '[ 1.45359237  2.90718474  4.36077711] kg'
     lbval = x+y >> lb
     assert np.allclose(lbval,
         np.array([3.20462262,  6.40924524,  9.61386787]))
@@ -268,10 +268,10 @@ def test_numpy_addition():
 def test_numpy_subtraction():
     x = np.array([1,2,3]) * kg
     y = np.array([1,2,3]) * lb
-    assert repr(x-y) == '[0.54640763 1.09281526 1.63922289] kg'
+    assert repr(x-y) == '[ 0.54640763  1.09281526  1.63922289] kg'
 
 
 def test_numpy_slice():
     x = np.array([ 0.08400557, 0.19897197, 0.12407021, 0.11867142]) * kg/hr
-    assert repr(x[:2]) == '[0.08400557 0.19897197] kg/hr'
+    assert repr(x[:2]) == '[ 0.08400557  0.19897197] kg/hr'
     assert repr(x[3]) == '0.1187 kg/hr'
