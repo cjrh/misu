@@ -16,6 +16,9 @@ from misu import (
 )
 from misu import EIncompatibleUnits, dimensions, QuantityNP
 
+import numpy
+numpy.set_printoptions(sign=' ')
+
 
 a = 2.5 * kg / s
 b = 34.67 * kg / s
