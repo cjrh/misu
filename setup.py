@@ -15,7 +15,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
-    version='1.0.3',
+    version='1.0.4',
     description='Fast quantities',
     long_description=long_description,
     url='https://github.com/cjrh/misu',
@@ -33,6 +33,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     keywords='math science engineering physics quantities units',
     packages=['misu'],
