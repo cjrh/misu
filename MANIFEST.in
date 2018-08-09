@@ -10,6 +10,7 @@ recursive-include misu/tests *
 #cython file
 include misu/engine.c
 include misu/Makefile
+include misu/engine.pyx
 
 #Misc
 include CHANGES.txt
