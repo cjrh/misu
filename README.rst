@@ -23,7 +23,35 @@ misu
 ====
 
 ``misu`` is short for "misura", which means **measurement** (in
-Italian).
+Italian). ``misu`` is a package for doing calculations with in consistent
+units of measurement.
+
+Install
+-------
+
+On Windows, precompiled wheels are provided so all you have to do is
+this:
+
+.. code-block:: shell
+
+    pip install misu
+
+On Linux, you have to install from a source distribution (sdist). This is
+also on PyPI, but you must already have Cython and numpy present in your
+target environment. This is because they are required to build *misu*.
+Thus, you need something like this on Linux:
+
+.. code-block:: shell
+
+    $ python3.7 -m venv venv
+    $ source venv/bin/activate
+    (venv) $ pip install Cython numpy
+    (venv) $ pip install misu
+
+    <lots of compiler output>
+
+If you have have experience with making *manylinux* wheels for Linux, I
+would love to get your help to make them for *misu* too!
 
 Demo
 ----
@@ -81,7 +109,7 @@ units can be used. Multiplication and division will produce new units:
 
     distance = 100*metres
     time = 9.2*seconds
-    ​
+
     speed = distance / time
     print(speed)
 
