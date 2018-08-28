@@ -308,7 +308,7 @@ createUnit('tun ', 0.953923769568 * m3)
 createUnit('wey_US ', 1.4095628066752 * m3)
 
 # Magnetic field strength
-createUnit('G Gauss', 1e-4 * T)
+createUnit('G Gauss', 1e-4 * T, mustCreateMetricPrefixes=True)
 
 # Dynamic viscosity
 createUnit('Pa_s pascal_second_SI_unit', 1 * Pa * s, unitCategory='Dynamic viscosity')
