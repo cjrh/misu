@@ -53,6 +53,24 @@ def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
         createMetricPrefixes(first_symbol, metricSkipFunction)
 
 
+def quantity_from_string(string):
+    """Create a Quantity instance from the supplied string.
+
+    The string has to be in the format `magnitude * unit`.
+
+    """
+    res = None
+    try:
+        res = eval(string)
+    except NameError:
+        print('String {s} not understood.'.format(string))
+        res = None
+    except SyntaxError:
+        print('String {s} not understood.'.format(string))
+        res = None
+    return res
+
+
 def plot_quantities(ax, x, xunits, y, yunits, series_label,
                     y_axlabel=None, x_axlabel=None):
     ''' Utility function that will include the units into the plot.'''
