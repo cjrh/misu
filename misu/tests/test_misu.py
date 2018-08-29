@@ -68,9 +68,23 @@ def test_division():
     assert '{:.5f}'.format(a / b) == '0.07211'
 
 
-def test_comparison():
-    assert a < b == True
+def test_comparison_smaller():
+    assert 1*m < 2*m
 
+def test_comparison_smaller_equal():
+    assert 3*m <= 3*m
+
+def test_comparison_equal():
+    assert 3*m == 3*m
+
+def test_comparison_larger():
+    assert 3*m > 2*m
+
+def test_comparison_larger_equal():
+    assert 3*m >= 3*m
+
+def test_comparison_equal():
+    assert 3*m == 3*m
 
 def test_incompatible_units():
     with pytest.raises(EIncompatibleUnits) as E:

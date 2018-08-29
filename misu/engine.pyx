@@ -516,7 +516,7 @@ cdef class Quantity:
         cdef Quantity yq = assertQuantity(y)
         sameunits(xq, yq)
         if op == 0:
-            return xq.magnitude > yq.magnitude
+            return xq.magnitude < yq.magnitude
         elif op == 1:
             return xq.magnitude <= yq.magnitude
         elif op == 2:
