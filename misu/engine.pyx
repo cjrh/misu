@@ -11,6 +11,7 @@ import numpy as np
 cimport numpy as np
 from cpython.array cimport array, copy
 
+from libc.string cimport strcmp
 
 cdef class Quantity
 cdef class QuantityNP
@@ -614,15 +615,39 @@ cdef class QuantityNP:
     #def __dir__(self):
     #    return dir(self.magnitude)
 
-#    def __array_wrap__(self, array, context=None):
-#        print self
-#        print array
-#
-#        cdef QuantityNP ans = assertQuantityNP(array)
-#        cdef int i
-#        for i from 0 <= i < 7:
-#            ans.unit[i] = self.unit[i]
-#        return ans
+    # def __array_wrap__(self, array, context=None):
+    #     print self
+    #     print array
+    #
+    #     cdef QuantityNP ans = assertQuantityNP(array)
+    #     cdef int i
+    #     for i from 0 <= i < 7:
+    #         ans.unit[i] = self.unit[i]
+    #     return ans
+
+
+
+    def _check_dimensionless(self):
+            if self.unitCategory() != 'Dimensionless':
+                raise EIncompatibleUnits('Argument must be dimensionless.')
+
+    # THIS WORKS
+    # def sin(self):
+    #     self._check_dimensionless()
+    #     # cdef QuantityNP out = QuantityNP.__new__(QuantityNP, np.sin(self.magnitude))
+    #     cdef QuantityNP out = QuantityNP.__new__(QuantityNP, getattr(np, 'sin')(self.magnitude))
+    #     return out
+
+
+    def __getattr__(self, name):
+        cdef list functions = [b'sin', b'cos']
+        for i in xrange(len(functions)):
+            if strcmp(name.encode('UTF-8'), functions[i]):
+                self._check_dimensionless()
+                ### THIS WORKS
+                return getattr(self.magnitude, name)
+                ### END THIS WORKS
+        return self.name
 
     def __getitem__(self, val):
         cdef int i
@@ -881,12 +906,3 @@ cdef class QuantityNP:
         return ans
 
 
-if __name__ == '__main__':
-#    m = Quantity(1.0, {'m':1.0}, 'Length')
-#    kg = Quantity(1.0, {'kg':1.0}, 'Mass')
-#    rho = 1000*kg/m**3
-#    print rho
-    for i in xrange(100000):
-        m = Quantity(1.0, {'m':1.0}, 'Length')
-        kg = Quantity(1.0, {'kg':1.0}, 'Mass')
-        rho = 1000*kg/m**3
