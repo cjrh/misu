@@ -238,9 +238,12 @@ cdef class Quantity:
         #self.stddev = 0
         self.unit[:] = [0,0,0,0,0,0,0]
 
-    #Pickling support
+    ##Pickling support
     def __reduce__(self):
-        return (Quantity, (self.magnitude,))
+       return (Quantity, (self.magnitude,), self.getunit(), None, None)
+
+    def __setstate__(self, unit):
+        self.setunit(unit)
 
 #    def __array_wrap__(array, context=None):
 #        return
@@ -592,9 +595,12 @@ cdef class QuantityNP:
         self.magnitude = magnitude
         self.unit[:] = [0,0,0,0,0,0,0]
 
-    #Pickling support
+    ##Pickling support
     def __reduce__(self):
-        return (QuantityNP, (self.magnitude,))
+       return (QuantityNP, (self.magnitude,), self.getunit(), None, None)
+
+    def __setstate__(self, unit):
+        self.setunit(unit)
 
     #def __array__(self, dtype=None):
     #    return self.magnitude
@@ -650,7 +656,7 @@ cdef class QuantityNP:
     def getunit(self):
         cdef list out
         cdef int i
-        out = []*7
+        out = [0.0]*7
         for i from 0 <= i < 7:
             out[i] = self.unit[i]
         return out
