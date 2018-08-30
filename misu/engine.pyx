@@ -249,6 +249,112 @@ cdef class Quantity:
 #    def __array_wrap__(array, context=None):
 #        return
 
+
+
+    # Implement some numpy functions
+
+    def _check_dimensionless(self):
+            if self.unitCategory() != 'Dimensionless':
+                raise EIncompatibleUnits('Argument must be dimensionless.')
+
+    def _get_from_numpy(self, name):
+        cdef Quantity out = Quantity.__new__(Quantity, getattr(np, name)(self.magnitude))
+        return out
+
+    def sin(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('sin')
+
+    def cos(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('cos')
+
+    def tan(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('tan')
+
+    def arcsin(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arcsin')
+
+    def arccos(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arccos')
+
+    def arctan(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arctan')
+
+    def degrees(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('degrees')
+
+    def radians(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('radians')
+
+    def deg2rad(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('deg2rad')
+
+    def rad2deg(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('rad2deg')
+
+    def sinh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('sinh')
+
+    def cosh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('cosh')
+
+    def tanh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('tanh')
+
+    def arcsinh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arcsinh')
+
+    def arccosh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arccosh')
+
+    def arctanh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arctanh')
+
+    def exp(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('exp')
+
+    def expm1(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('expm1')
+
+    def exp2(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('exp2')
+
+    def log(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('log')
+
+    def log10(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('log10')
+
+    def log2(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('log2')
+
+    def log1p(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('log1p')
+
+    # End numpy functions
+
     cdef inline tuple unit_as_tuple(self):
         return tuple(self.units())
 
@@ -626,28 +732,109 @@ cdef class QuantityNP:
     #     return ans
 
 
+    # Implement some numpy functions
 
     def _check_dimensionless(self):
             if self.unitCategory() != 'Dimensionless':
                 raise EIncompatibleUnits('Argument must be dimensionless.')
 
-    # THIS WORKS
-    # def sin(self):
-    #     self._check_dimensionless()
-    #     # cdef QuantityNP out = QuantityNP.__new__(QuantityNP, np.sin(self.magnitude))
-    #     cdef QuantityNP out = QuantityNP.__new__(QuantityNP, getattr(np, 'sin')(self.magnitude))
-    #     return out
+    def _get_from_numpy(self, name):
+        cdef QuantityNP out = QuantityNP.__new__(QuantityNP, getattr(np, name)(self.magnitude))
+        return out
 
+    def sin(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('sin')
 
-    def __getattr__(self, name):
-        cdef list functions = [b'sin', b'cos']
-        for i in xrange(len(functions)):
-            if strcmp(name.encode('UTF-8'), functions[i]):
-                self._check_dimensionless()
-                ### THIS WORKS
-                return getattr(self.magnitude, name)
-                ### END THIS WORKS
-        return self.name
+    def cos(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('cos')
+
+    def tan(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('tan')
+
+    def arcsin(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arcsin')
+
+    def arccos(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arccos')
+
+    def arctan(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arctan')
+
+    def degrees(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('degrees')
+
+    def radians(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('radians')
+
+    def deg2rad(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('deg2rad')
+
+    def rad2deg(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('rad2deg')
+
+    def sinh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('sinh')
+
+    def cosh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('cosh')
+
+    def tanh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('tanh')
+
+    def arcsinh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arcsinh')
+
+    def arccosh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arccosh')
+
+    def arctanh(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('arctanh')
+
+    def exp(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('exp')
+
+    def expm1(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('expm1')
+
+    def exp2(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('exp2')
+
+    def log(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('log')
+
+    def log10(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('log10')
+
+    def log2(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('log2')
+
+    def log1p(self):
+        self._check_dimensionless()
+        return self._get_from_numpy('log1p')
+
+    # End numpy functions
 
     def __getitem__(self, val):
         cdef int i
