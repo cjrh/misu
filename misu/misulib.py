@@ -3,6 +3,7 @@ from __future__ import division, print_function
 import sys
 import traceback
 import math
+import re
 from misu.engine import *
 from misu.SIprefixes import SIprefixes_sym
 
@@ -56,9 +57,23 @@ def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
 def quantity_from_string(string):
     """Create a Quantity instance from the supplied string.
 
-    The string has to be in the format `magnitude * unit`.
+    The string has to be in the format that misu uses for string representations, i.e.
+    the following works:
+
+    1.0 m
+    1 m
+    1 m^2 s^-1
+    1 m/s
+    1.248e+05 m/s
+    -1.158e+05 m/s kg
 
     """
+    # Multiplication: replace all whitespace surounded by a-z,A-Z,0-9 with *
+    string = re.sub(r'([a-z,A-Z,0-9])(\s+)([a-z,A-Z,0-9])',r'\1*\3' , string)
+
+    # Exponentiation: replace all ^ with **
+    string = re.sub(r'\^', r'**' , string)
+
     res = None
     try:
         res = eval(string)
