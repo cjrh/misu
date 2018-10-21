@@ -1,3 +1,14 @@
+1.0.6 By Christian Groß:
+    - Fixed a wrong greater-than sign in QuantityNP
+    - Added the Gauss unit
+    - Added convert string into a Quantity
+    - Fixed pickle support
+    - Added support for 23 functions from numpy, including sin, cos,
+      tan, arcsin, arccos, arctan, degrees, radians, deg2rad, rad2deg,
+      sinh, cosh, tanh, arcsinh, arccosh, arctanh, exp, expm1, exp2,
+      log, log10, log2, log1p
+
+    Also, we're dropping support for Python 2.7.
 1.0.4 Updated tests for new version of Numpy. 3.7 Support.
 1.0.3 Cleaned up tests.
 1.0.2 Needed a new release to fix a bad file upload(!)
