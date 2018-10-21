@@ -14,7 +14,7 @@ from misu import (
     kg, s, lb, minute, Hz, kHz, GHz, MHz, ft, BTU, MW, d, m3, inch, Pa, bar,
     cm, minutes, hr, m, dimensionless
 )
-from misu import EIncompatibleUnits, dimensions, QuantityNP
+from misu import EIncompatibleUnits, dimensions, QuantityNP, quantity_from_string
 
 import numpy
 try:
@@ -52,6 +52,18 @@ def test_format_right_align():
     assert fmtstr == '     124812.00 kg/hr'
 
 
+def test_from_string1():
+    quantity_from_string('1 m^2 s^-1') == 1 * m**2/s
+
+
+def test_from_string2():
+    quantity_from_string('1 m^2     s^-1') == 1 * m**2/s
+
+
+def test_from_string3():
+    assert quantity_from_string('-1.158e+05 m/s kg^6.0') == -1.158e+05* m/s* kg**6.0
+
+
 def test_addition():
     assert repr(a + b) == '1.338e+05 kg/hr'
 
@@ -67,6 +79,24 @@ def test_multiplication():
 def test_division():
     assert '{:.5f}'.format(a / b) == '0.07211'
 
+
+def test_comparison_smaller():
+    assert 1*m < 2*m
+
+def test_comparison_smaller_equal():
+    assert 3*m <= 3*m
+
+def test_comparison_equal():
+    assert 3*m == 3*m
+
+def test_comparison_larger():
+    assert 3*m > 2*m
+
+def test_comparison_larger_equal():
+    assert 3*m >= 3*m
+
+def test_comparison_equal():
+    assert 3*m == 3*m
 
 def test_incompatible_units():
     with pytest.raises(EIncompatibleUnits) as E:

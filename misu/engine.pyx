@@ -238,6 +238,10 @@ cdef class Quantity:
         #self.stddev = 0
         self.unit[:] = [0,0,0,0,0,0,0]
 
+    #Pickling support
+    def __reduce__(self):
+        return (Quantity, (self.magnitude,))
+
 #    def __array_wrap__(array, context=None):
 #        return
 
@@ -516,7 +520,7 @@ cdef class Quantity:
         cdef Quantity yq = assertQuantity(y)
         sameunits(xq, yq)
         if op == 0:
-            return xq.magnitude > yq.magnitude
+            return xq.magnitude < yq.magnitude
         elif op == 1:
             return xq.magnitude <= yq.magnitude
         elif op == 2:
@@ -587,6 +591,10 @@ cdef class QuantityNP:
     def __cinit__(self, np.ndarray magnitude):
         self.magnitude = magnitude
         self.unit[:] = [0,0,0,0,0,0,0]
+
+    #Pickling support
+    def __reduce__(self):
+        return (QuantityNP, (self.magnitude,))
 
     #def __array__(self, dtype=None):
     #    return self.magnitude

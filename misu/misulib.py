@@ -3,6 +3,7 @@ from __future__ import division, print_function
 import sys
 import traceback
 import math
+import re
 from misu.engine import *
 from misu.SIprefixes import SIprefixes_sym
 
@@ -51,6 +52,38 @@ def createUnit(symbols, quantity, mustCreateMetricPrefixes=False, valdict=None,
     # Metric prefixes
     if mustCreateMetricPrefixes:
         createMetricPrefixes(first_symbol, metricSkipFunction)
+
+
+def quantity_from_string(string):
+    """Create a Quantity instance from the supplied string.
+
+    The string has to be in the format that misu uses for string representations, i.e.
+    the following works:
+
+    1.0 m
+    1 m
+    1 m^2 s^-1
+    1 m/s
+    1.248e+05 m/s
+    -1.158e+05 m/s kg
+
+    """
+    # Multiplication: replace all whitespace surounded by a-z,A-Z,0-9 with *
+    string = re.sub(r'([a-z,A-Z,0-9])(\s+)([a-z,A-Z,0-9])',r'\1*\3' , string)
+
+    # Exponentiation: replace all ^ with **
+    string = re.sub(r'\^', r'**' , string)
+
+    res = None
+    try:
+        res = eval(string)
+    except NameError:
+        print('String {s} not understood.'.format(string))
+        res = None
+    except SyntaxError:
+        print('String {s} not understood.'.format(string))
+        res = None
+    return res
 
 
 def plot_quantities(ax, x, xunits, y, yunits, series_label,
@@ -307,6 +340,9 @@ createUnit('ton_water ', 1.01832416 * m3)
 createUnit('tun ', 0.953923769568 * m3)
 createUnit('wey_US ', 1.4095628066752 * m3)
 
+# Magnetic field strength
+createUnit('G Gauss', 1e-4 * T, mustCreateMetricPrefixes=True)
+
 # Dynamic viscosity
 createUnit('Pa_s pascal_second_SI_unit', 1 * Pa * s, unitCategory='Dynamic viscosity')
 createUnit('poise_cgs_unit ', 0.1 * Pa * s)
@@ -467,10 +503,8 @@ createUnit('crith ', 89.9349 * mg)
 createUnit('Da dalton', 1.66090210e-27 * kg)
 createUnit('dram_apothecary troy  dr_t ', 3.8879346 * g)
 createUnit('dram_avoirdupois  dr_av ', 1.7718451953125 * g)
-createUnit('eV electronvolt', 1.7826e-36 * kg)
 createUnit('gamma ', 1e-6 * g)
 createUnit('gr grain', 64.79891 * mg)
-createUnit('G grave', 1 * kg)
 createUnit('hundredweight_long  long_cwt_or_cwt ', 50.80234544 * kg)
 createUnit('hundredweight_short  cental  sh_cwt ', 45.359237 * kg)
 createUnit('kip', 453.59237 * kg)
