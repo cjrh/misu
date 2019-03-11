@@ -62,33 +62,33 @@ P = 2000 * kPa
 
 # Convert the value to bars:
 
-print P.convert(bar)
+print(P.convert(bar))
 
 # Perhaps we want to always have pressures reported in MPa (megapascals):
 
 P.setRepresent(MPa, 'MPa')
-print P
+print(P)
 
 # This changes the presentation of *all* pressures:
 
-print 200*bar + 7600*mmHg
-print 5000*kPa - 50e3*N/m2
+print(200*bar + 7600*mmHg)
+print(5000*kPa - 50e3*N/m2)
 
 # Lengths!
 
 my_length = 10*inch + 50*cm + 0.25*foot - 0.5*m
-print my_length.convert(mm)
+print(my_length.convert(mm))
 
 # Temperatures can be declared only in absolute units like
 # kelvin (K) or rankine (R), but it is easy to create a
 # representation for reporting temperatures.
 
 temp = 273.15 * K
-print temp
+print(temp)
 temp.setRepresent(convert_function=lambda _, mag: mag - 273.15, symbol='C')
-print temp
+print(temp)
 temp = temp + 100*K
-print temp
+print(temp)
 
 # Only absolute temperatures are defined as declarable units though.
 
@@ -97,46 +97,46 @@ temp = 100*K+100*R
 # But note that the answer continues to come out as we
 # required earlier (degrees C):
 
-print temp
+print(temp)
 
 # We could changed the representation to something else:
 temp.setRepresent(convert_function=lambda _, mag: (mag - 273.15)*9./5.+32, symbol='F')
-print temp
+print(temp)
 # We know that -40F == -40C so...
 temp = 273.15*K - 40*K
-print temp
+print(temp)
 
 # Energy
 
 energy = 100*J
-print 'energy = {}'.format(energy)
+print('energy = {}'.format(energy))
 energy.setRepresent(as_unit=J, symbol='J')
-print 'energy = {}'.format(energy)
+print('energy = {}'.format(energy))
 # Format strings also work correctly.
 energy.setRepresent(BTU, 'BTU')
-print '{:.3e}'.format(energy)
+print('{:.3e}'.format(energy))
 
 # It is easy to examine the details:
 
-print energy.magnitude
-print energy.units()
+print(energy.magnitude)
+print(energy.units())
 
 # You can see that internally, the vars store fundamental SI unit exponents.
 
-print energy**2
-print (energy**2).units()
+print(energy**2)
+print((energy**2).units())
 
 # The type is obviously examinable:
 
-print type(energy)
+print(type(energy))
 
 # The size is reasonably compact:
 import sys
-print sys.getsizeof(energy)
+print(sys.getsizeof(energy))
 
 # Units can also be dimensionless:
 
-print 1*dimensionless
+print(1*dimensionless)
 
 # Decorators
 ############
