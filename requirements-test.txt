@@ -1,6 +1,6 @@
 cython
 numpy
 -e .
-pytest==7.1.2
+pytest==7.1.3
 pytest-cov
 coveralls
