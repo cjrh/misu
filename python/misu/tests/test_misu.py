@@ -40,13 +40,11 @@ def test_format_simple():
     assert '{:.2f}'.format(b) == '124812.00 kg/hr'
 
 
-@pytest.mark.xfail(reason='This requires further work.')
 def test_format_left_align():
     fmtstr = '{:<20.2f}'.format(b)
     assert fmtstr == '124812.00 kg/hr     '
 
 
-@pytest.mark.xfail(reason='This requires further work.')
 def test_format_right_align():
     fmtstr = '{:>20.2f}'.format(b)
     assert fmtstr == '     124812.00 kg/hr'

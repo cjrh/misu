@@ -1,0 +1,46 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "misu"
+version = "2.0.0"
+description = "Fast quantities (units of measurement) for Python — Rust-powered."
+readme = "README.rst"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Caleb Hattingh", email = "caleb.hattingh@gmail.com" }]
+keywords = ["math", "science", "engineering", "physics", "quantities", "units"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = ["numpy>=1.23"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.urls]
+Homepage = "https://github.com/cjrh/misu"
+Source = "https://github.com/cjrh/misu"
+
+[tool.maturin]
+python-source = "python"
+module-name = "misu._engine"
+manifest-path = "Cargo.toml"
+profile = "release"
+features = ["pyo3/extension-module"]
+
+[tool.pytest.ini_options]
+testpaths = ["python/misu/tests"]
