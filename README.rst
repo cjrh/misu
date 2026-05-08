@@ -253,3 +253,70 @@ enough yet to provide a fair comparison:
 -  `Units <https://bitbucket.org/adonohue/units/>`__
 -  `Unum <https://bitbucket.org/kiv/unum/>`__
 
+Releasing
+---------
+
+Publishing to PyPI is automated via GitHub Actions and `PyPI trusted
+publishing <https://docs.pypi.org/trusted-publishers/>`__ (OIDC). No API
+tokens or passwords are stored anywhere — PyPI trusts the
+``cjrh/misu`` repo's ``release.yml`` workflow running in the ``pypi``
+environment, and rejects everything else.
+
+Cutting a release
+^^^^^^^^^^^^^^^^^
+
+The version lives in ``Cargo.toml``. ``pyproject.toml`` declares
+``dynamic = ["version"]``, so maturin reads it from the Rust crate at
+build time — there is only one place to edit.
+
+Use `cargo-release <https://github.com/crate-ci/cargo-release>`__ to
+bump, commit, tag, and push in one step. From a clean ``master``:
+
+.. code-block:: shell
+
+    cargo release patch --execute   # 2.0.0 → 2.0.1
+    cargo release minor --execute   # 2.0.0 → 2.1.0
+    cargo release major --execute   # 2.0.0 → 3.0.0
+    cargo release 2.0.5 --execute   # explicit version
+
+Drop ``--execute`` for a dry run.
+
+What happens automatically
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+cargo-release performs the following steps locally:
+
+1. Bumps ``version`` in ``Cargo.toml`` and updates ``Cargo.lock``.
+2. Commits the change with the message ``Release <version>``.
+3. Creates an annotated tag ``v<version>``.
+4. Pushes the branch and the tag to ``origin``.
+
+The tag push triggers ``.github/workflows/release.yml``, which:
+
+1. Builds wheels for Linux (x86_64, aarch64), macOS (x86_64, aarch64),
+   and Windows (x64), plus an sdist. Because PyO3 is configured with
+   ``abi3-py39``, one wheel per (OS, arch) covers all supported Python
+   versions.
+2. Downloads all artifacts into the ``release`` job, which runs in the
+   ``pypi`` GitHub environment.
+3. Uploads to PyPI via ``pypa/gh-action-pypi-publish``. Authentication
+   happens via OIDC against the trusted-publisher configuration on
+   PyPI; nothing else is needed.
+
+If the build jobs succeed but the release job fails (for example, the
+PyPI environment was not configured), nothing is published, and the
+release can be retried by re-running just the failed job.
+
+Troubleshooting
+^^^^^^^^^^^^^^^
+
+- **cargo-release refuses with "uncommitted changes"** — commit or
+  stash first; cargo-release insists on a clean tree.
+- **cargo-release refuses with "not on allowed branch"** — release only
+  from ``master`` (the default ``allow-branch`` setting).
+- **PyPI rejects the upload with "version already exists"** — PyPI
+  filenames are immutable; bump again.
+- **Tag pushed but workflow did not run** — check the tag matches the
+  ``tags: '*'`` trigger in ``release.yml`` and that the ``pypi``
+  GitHub environment exists with no protection rules blocking the run.
+
