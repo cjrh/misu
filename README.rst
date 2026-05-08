@@ -26,29 +26,15 @@ units of measurement.
 Install
 -------
 
-On Windows, precompiled wheels are provided so all you have to do is
-this:
+Precompiled wheels are published to PyPI for Linux (x86_64, aarch64),
+macOS (x86_64, aarch64), and Windows (x64), covering Python 3.9 and
+later. There is nothing to compile.
 
 .. code-block:: shell
 
+    uv add misu        # in a uv project
+    uv pip install misu
     pip install misu
-
-On Linux, you have to install from a source distribution (sdist). This is
-also on PyPI, but you must already have Cython and numpy present in your
-target environment. This is because they are required to build *misu*.
-Thus, you need something like this on Linux:
-
-.. code-block:: shell
-
-    $ python3.7 -m venv venv
-    $ source venv/bin/activate
-    (venv) $ pip install Cython numpy
-    (venv) $ pip install misu
-
-    <lots of compiler output>
-
-If you have have experience with making *manylinux* wheels for Linux, I
-would love to get your help to make them for *misu* too!
 
 Demo
 ----
@@ -150,9 +136,8 @@ Features
    will be around only 5X slower when used with ``misu``. This is much
    faster than other quantities packages for Python.
 
--  Written as a Cython extension module. Speed benefits carry over when
-   using ``misu`` from your own Cython module (a ``.pxd`` is provided
-   for linking).
+-  Implemented as a Rust extension module via
+   `PyO3 <https://pyo3.rs/>`__, so the hot paths run as native code.
 
 -  When an operation involving incompatible units is attempted, an
    ``EIncompatibleUnits`` exception is raised, with a clear explanation
@@ -198,8 +183,8 @@ There are other projects, why ``misu``?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are several units systems for Python, but the primary motivating
-use-case is that ``misu`` is written as a Cython module and is by far
-the fastest\* for managing units available in Python.
+use-case is that ``misu`` is written as a Rust extension module and is
+by far the fastest\* for managing units available in Python.
 
 \*\ *Except for ``NumericalUnits``, which is a special case*
 
@@ -252,4 +237,71 @@ enough yet to provide a fair comparison:
 -  `udunitspy <https://github.com/blazetopher/udunitspy>`__
 -  `Units <https://bitbucket.org/adonohue/units/>`__
 -  `Unum <https://bitbucket.org/kiv/unum/>`__
+
+Releasing
+---------
+
+Publishing to PyPI is automated via GitHub Actions and `PyPI trusted
+publishing <https://docs.pypi.org/trusted-publishers/>`__ (OIDC). No API
+tokens or passwords are stored anywhere — PyPI trusts the
+``cjrh/misu`` repo's ``release.yml`` workflow running in the ``pypi``
+environment, and rejects everything else.
+
+Cutting a release
+^^^^^^^^^^^^^^^^^
+
+The version lives in ``Cargo.toml``. ``pyproject.toml`` declares
+``dynamic = ["version"]``, so maturin reads it from the Rust crate at
+build time — there is only one place to edit.
+
+Use `cargo-release <https://github.com/crate-ci/cargo-release>`__ to
+bump, commit, tag, and push in one step. From a clean ``master``:
+
+.. code-block:: shell
+
+    cargo release patch --execute   # 2.0.0 → 2.0.1
+    cargo release minor --execute   # 2.0.0 → 2.1.0
+    cargo release major --execute   # 2.0.0 → 3.0.0
+    cargo release 2.0.5 --execute   # explicit version
+
+Drop ``--execute`` for a dry run.
+
+What happens automatically
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+cargo-release performs the following steps locally:
+
+1. Bumps ``version`` in ``Cargo.toml`` and updates ``Cargo.lock``.
+2. Commits the change with the message ``Release <version>``.
+3. Creates an annotated tag ``v<version>``.
+4. Pushes the branch and the tag to ``origin``.
+
+The tag push triggers ``.github/workflows/release.yml``, which:
+
+1. Builds wheels for Linux (x86_64, aarch64), macOS (x86_64, aarch64),
+   and Windows (x64), plus an sdist. Because PyO3 is configured with
+   ``abi3-py39``, one wheel per (OS, arch) covers all supported Python
+   versions.
+2. Downloads all artifacts into the ``release`` job, which runs in the
+   ``pypi`` GitHub environment.
+3. Uploads to PyPI via ``pypa/gh-action-pypi-publish``. Authentication
+   happens via OIDC against the trusted-publisher configuration on
+   PyPI; nothing else is needed.
+
+If the build jobs succeed but the release job fails (for example, the
+PyPI environment was not configured), nothing is published, and the
+release can be retried by re-running just the failed job.
+
+Troubleshooting
+^^^^^^^^^^^^^^^
+
+- **cargo-release refuses with "uncommitted changes"** — commit or
+  stash first; cargo-release insists on a clean tree.
+- **cargo-release refuses with "not on allowed branch"** — release only
+  from ``master`` (the default ``allow-branch`` setting).
+- **PyPI rejects the upload with "version already exists"** — PyPI
+  filenames are immutable; bump again.
+- **Tag pushed but workflow did not run** — check the tag matches the
+  ``tags: '*'`` trigger in ``release.yml`` and that the ``pypi``
+  GitHub environment exists with no protection rules blocking the run.
 

@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "misu"
-version = "2.0.0"
+dynamic = ["version"]
 description = "Fast quantities (units of measurement) for Python — Rust-powered."
 readme = "README.rst"
 requires-python = ">=3.9"
