@@ -93,6 +93,46 @@ the chosen output formats.
   test` against a pyo3 crate — irrelevant here, since the tests are
   driven from Python.
 
+## Free-threaded Python (3.13t / 3.14t)
+
+`misu` ships wheels for the free-threaded (no-GIL) CPython builds in
+addition to the GIL-enabled ones, but the two are built differently:
+
+- **GIL builds** (3.9–3.14): a single `abi3` wheel per (OS, arch) covers
+  all supported interpreters, thanks to
+  `pyo3 = { features = ["abi3-py39", ...] }` in `Cargo.toml`.
+- **Free-threaded builds** (3.13t, 3.14t): the free-threaded ABI does
+  *not* support `Py_LIMITED_API`, so `abi3-pyXX` is silently ignored on
+  these interpreters. Free-threaded wheels are version-specific and are
+  produced by separate jobs in the release workflow.
+
+Local build against a free-threaded interpreter:
+
+```bash
+maturin develop --release --interpreter python3.14t
+```
+
+Thread-safety posture:
+
+- PyO3 0.28+ defaults to `gil_used = false` at the module level, so
+  `misu._engine` already declares itself free-thread-aware.
+- `Quantity` is `#[pyclass(frozen)]` — immutable after construction —
+  so scalar arithmetic is safe without explicit GIL release. See the
+  module-doc comment on `rust/src/quantity.rs`.
+- `QuantityNP` releases the GIL around its ndarray loops via
+  `py.detach()`. See the module-doc comment on `rust/src/quantity_np.rs`.
+
+CI / release status:
+
+- `ci.yml` includes `3.14t` in its matrix (alongside `3.9`–`3.14`).
+- `release.yml` builds `linux-freethreaded`, `macos-freethreaded`, and
+  `windows-freethreaded` wheels for `3.14t` as separate jobs (each per
+  OS, since `manylinux` and `maturin` args differ per platform).
+
+When a future free-threaded CPython lands (e.g. `3.15t`), add a matrix
+entry to `ci.yml` and three new `*-freethreaded` jobs to `release.yml`,
+following the existing pattern.
+
 ## Pitfall: a stray `misu/` at the repository root
 
 If a `misu/` directory exists at the repository root (left over from

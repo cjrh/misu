@@ -14,6 +14,11 @@ crate-type = ["cdylib"]
 path = "rust/src/lib.rs"
 
 [dependencies]
+# `abi3-py39` covers the GIL-enabled CPython interpreters (3.9–3.14)
+# with a single wheel per (OS, arch). The free-threaded ABI does NOT
+# support `Py_LIMITED_API`, so abi3 is silently ignored under 3.13t /
+# 3.14t — those interpreters require separate, version-specific wheels
+# (see the `*-freethreaded` jobs in `.github/workflows/release.yml`).
 pyo3 = { version = "0.28", features = ["abi3-py39", "extension-module"] }
 numpy = "0.28"
 # Version coupling: rust-numpy 0.28 re-exports ndarray 0.17. Keep these

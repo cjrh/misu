@@ -23,6 +23,7 @@ import statistics
 import sys
 import time
 
+import misu
 from misu import kg, m, s
 
 
@@ -103,7 +104,7 @@ def report(name, t_float, t_misu, r_float, r_misu):
 
 
 def main():
-    print(f"Python {sys.version.split()[0]}")
+    print(f"Python {sys.version.split()[0]} | misu {misu.__version__}")
 
     # ---- fall_with_drag --------------------------------------------------
     STEPS_FALL = 200_000
