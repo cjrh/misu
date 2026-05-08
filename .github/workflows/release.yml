@@ -75,6 +75,74 @@ jobs:
           name: wheels-windows-${{ matrix.target }}
           path: dist
 
+  # Free-threaded (no-GIL) wheels. PyO3 0.28's `abi3-py39` feature is
+  # silently ignored under a free-threaded interpreter, so maturin emits
+  # version-specific cp314t wheels here rather than abi3.
+  linux-freethreaded:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14t'
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          args: --release --out dist --interpreter 3.14t
+          manylinux: 2014
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-freethreaded-${{ matrix.target }}
+          path: dist
+
+  macos-freethreaded:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14t'
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          args: --release --out dist --interpreter 3.14t
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-freethreaded-${{ matrix.target }}
+          path: dist
+
+  windows-freethreaded:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        target: [x64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14t'
+          architecture: ${{ matrix.target }}
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          args: --release --out dist --interpreter 3.14t
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-freethreaded-${{ matrix.target }}
+          path: dist
+
   sdist:
     runs-on: ubuntu-latest
     steps:
@@ -94,7 +162,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [linux, macos, windows, sdist]
+    needs: [linux, macos, windows, linux-freethreaded, macos-freethreaded, windows-freethreaded, sdist]
     environment: pypi
     permissions:
       id-token: write
