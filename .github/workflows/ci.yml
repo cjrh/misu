@@ -18,8 +18,9 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         # Keep this list in sync with `Programming Language :: Python :: 3.X`
         # classifiers in pyproject.toml — those are the supported-versions
-        # source of truth.
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        # source of truth. `3.14t` is the free-threaded (no-GIL) build;
+        # `actions/setup-python@v5` recognises the `t` suffix directly.
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14', '3.14t']
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
