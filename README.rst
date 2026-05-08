@@ -130,8 +130,10 @@ Features
 ^^^^^^^^
 
 -  Speed optimized. ``misu`` is very fast! Heavy math code in Python
-   will be around only 5X slower when used with ``misu``. This is much
-   faster than other quantities packages for Python.
+   is only around 5X slower when expressed with ``misu`` quantities
+   instead of plain floats — see `Performance`_ below for measured
+   numbers. This is much faster than other quantities packages for
+   Python.
 
 -  Implemented as a Rust extension module via
    `PyO3 <https://pyo3.rs/>`__, so the hot paths run as native code.
@@ -176,6 +178,48 @@ Features
    could have all lengths be reported in "feet" by default for example.
 -  You can specify a *reporting format* for a particular unit.
 
+Performance
+^^^^^^^^^^^
+
+Two looping numerical workloads, each timed in plain Python floats and
+then with ``misu`` quantities (so every operation in the inner loop pays
+the unit-tracking cost). The benchmark lives at
+``scripts/benchmark.py`` and can be re-run any time:
+
+.. code:: shell
+
+    python scripts/benchmark.py
+
+Representative numbers on Python 3.14, best of five runs:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 55 15 15 15
+
+   * - Workload
+     - float (ms)
+     - misu (ms)
+     - slowdown
+   * - ``fall_with_drag`` — 200k Euler steps, 1-D free-fall with
+       quadratic drag
+     - ~19
+     - ~103
+     - ~5.2x
+   * - ``orbit_step`` — 100k 2-D Kepler steps, sqrt-heavy
+     - ~18
+     - ~91
+     - ~5.1x
+   * - **Geometric mean**
+     -
+     -
+     - **~5.1x**
+
+The original 5x heuristic was measured back when ``misu`` was a Cython
+extension; the rewrite to a Rust/PyO3 extension lands in the same
+ballpark, presumably because the dominant cost is the Python-call
+boundary around each ``__mul__`` / ``__add__`` rather than the
+unit-arithmetic itself.
+
 There are other projects, why ``misu``?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -201,9 +245,10 @@ result back into a quantity and return that from a function.
 
     @dimensions(x='Length', y='Mass')
     def f(x, y):
-        x = x >> metre
-        y = y >> ounces
+        x = x >> metre   # Converts to metres, leaving a primitive float
+        y = y >> ounces  # Converts to metres, leaving a primitive float
         <code that assumes meters and ounces, returns value in BTU>
+        # Convert the primitive float to BTU on the way out
         return answer * BTU
 
 This way you can still easily wrap performance-critical calculations
