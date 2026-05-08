@@ -27,6 +27,14 @@ coverage-setup:
     rustup component add llvm-tools-preview
     cargo install cargo-llvm-cov
 
+# Show uncovered Rust line ranges from the last `just coverage` run.
+coverage-missing:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    source <(cargo llvm-cov show-env --sh)
+    export CARGO_TARGET_DIR="$CARGO_LLVM_COV_TARGET_DIR"
+    cargo llvm-cov report --show-missing-lines
+
 # Rust code coverage from the Python test suite (HTML + LCOV).
 coverage:
     #!/usr/bin/env bash
