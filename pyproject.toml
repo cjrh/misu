@@ -39,6 +39,9 @@ Source = "https://github.com/cjrh/misu"
 python-source = "python"
 module-name = "misu._engine"
 manifest-path = "Cargo.toml"
+# Coverage builds must override this with `maturin develop --profile dev`:
+# the release profile's lto="fat" + strip="symbols" break LLVM coverage
+# maps. See `just coverage` and DEVELOPMENT.md.
 profile = "release"
 features = ["pyo3/extension-module"]
 
