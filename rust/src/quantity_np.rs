@@ -200,6 +200,11 @@ impl QuantityNP {
         Self::__str__(slf, py)
     }
 
+    // Numeric specs (e.g. ".2f") are not applicable here: the underlying
+    // numpy.ndarray.__format__ rejects scalar specs with TypeError —
+    // matching numpy's own behaviour for `'{:.2f}'.format(arr)`. Callers
+    // should use `'{}'.format(qnp)` (default formatting) or format the
+    // magnitude array elementwise themselves.
     fn __format__<'py>(
         slf: &Bound<'py, Self>,
         py: Python<'py>,
