@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/cjrh/misu.svg?branch=master
-    :target: https://travis-ci.org/cjrh/misu
+.. image:: https://github.com/cjrh/misu/actions/workflows/ci.yml/badge.svg?branch=master
+    :target: https://github.com/cjrh/misu/actions/workflows/ci.yml
 
 .. image:: https://coveralls.io/repos/github/cjrh/misu/badge.svg?branch=master
     :target: https://coveralls.io/github/cjrh/misu?branch=master
