@@ -1,0 +1,31 @@
+[package]
+name = "misu_engine"
+version = "2.0.0"
+edition = "2021"
+rust-version = "1.74"
+description = "Rust core for the misu Python units-of-measurement package."
+license = "MIT"
+repository = "https://github.com/cjrh/misu"
+publish = false
+
+[lib]
+name = "_engine"
+crate-type = ["cdylib"]
+path = "rust/src/lib.rs"
+
+[dependencies]
+pyo3 = { version = "0.28", features = ["abi3-py39", "extension-module"] }
+numpy = "0.28"
+# Version coupling: rust-numpy 0.28 re-exports ndarray 0.17. Keep these
+# in lockstep — a mismatch produces "two different ndarray crates in the
+# graph" trait-bound errors. Verify with `cargo tree | grep ndarray`.
+ndarray = "0.17"
+once_cell = "1"
+parking_lot = "0.12"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
