@@ -10,9 +10,6 @@
 .. image:: https://img.shields.io/github/tag/cjrh/misu.svg
     :target: https://img.shields.io/github/tag/cjrh/misu.svg
 
-.. image:: https://img.shields.io/badge/install-pip%20install%20misu-ff69b4.svg
-    :target: https://img.shields.io/badge/install-pip%20install%20misu-ff69b4.svg
-
 .. image:: https://img.shields.io/pypi/v/misu.svg
     :target: https://img.shields.io/pypi/v/misu.svg
 
