@@ -1,7 +1,7 @@
-// We intentionally use Python's camelCase identifiers (addType, unitCategory,
-// setRepresent, setValDict, _unitString) and a few legacy "deprecated" PyO3
-// helpers. Silencing those lints crate-wide keeps the diff focused.
-#![allow(non_snake_case, deprecated)]
+// Python-API-faithful names (`addType`, `setRepresent`, `setValDict`,
+// `_unitString`, `unitCategory`) match the existing user-facing API; do
+// not rename them.
+#![allow(non_snake_case)]
 //! misu Rust core (`misu._engine`).
 //!
 //! Exposes:

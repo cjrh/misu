@@ -44,14 +44,14 @@ impl QuantityNP {
             return Ok(QuantityNP::new(arr.into_pyarray(py).unbind(), q.dim));
         }
         // numpy ndarray path
-        if let Ok(arr) = obj.downcast::<PyArray1<f64>>() {
+        if let Ok(arr) = obj.cast::<PyArray1<f64>>() {
             return Ok(QuantityNP::new(arr.clone().unbind(), Dim::DIMENSIONLESS));
         }
         // Generic ndarray of any dtype: convert to f64 via numpy.
         let np = py.import("numpy")?;
         let asarray = np.getattr("asarray")?;
         let conv = asarray.call1((obj.clone(), np.getattr("float64")?))?;
-        let arr = conv.downcast_into::<PyArray1<f64>>().map_err(|_| {
+        let arr = conv.cast_into::<PyArray1<f64>>().map_err(|_| {
             PyTypeError::new_err("Could not coerce to a 1-D float64 numpy array")
         })?;
         Ok(QuantityNP::new(arr.unbind(), Dim::DIMENSIONLESS))
@@ -300,7 +300,7 @@ impl QuantityNP {
         let py_any: &Bound<'py, PyAny> = bound.as_any();
         let result = py_any.get_item(index)?;
         // If result is a scalar (0-d / float), wrap as Quantity; else QuantityNP.
-        if let Ok(arr) = result.downcast::<PyArray1<f64>>() {
+        if let Ok(arr) = result.cast::<PyArray1<f64>>() {
             return Ok(QuantityNP::new(arr.clone().unbind(), q.dim)
                 .into_pyobject(py)?
                 .into_any()

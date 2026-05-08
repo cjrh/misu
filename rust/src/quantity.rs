@@ -11,7 +11,7 @@ use crate::format::{self, SYMBOLS};
 use crate::quantity_np::QuantityNP;
 use crate::registry::{QUANTITY_TYPE, REPRESENT_CACHE, RepresentEntry};
 
-#[pyclass(module = "misu._engine", frozen)]
+#[pyclass(module = "misu._engine", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct Quantity {
     pub magnitude: f64,
