@@ -29,3 +29,8 @@ lto = "fat"
 codegen-units = 1
 panic = "abort"
 strip = "symbols"
+
+[package.metadata.release]
+tag-name = "v{{version}}"
+pre-release-commit-message = "Release {{version}}"
+publish = false
