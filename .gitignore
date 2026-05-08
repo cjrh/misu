@@ -57,6 +57,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.lcov
+*.profraw
 *,cover
 
 # Translations

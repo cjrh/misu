@@ -61,14 +61,14 @@ just coverage-setup
 
 ### How it works
 
-`cargo llvm-cov show-env --export-prefix` prints `RUSTFLAGS`,
+`cargo llvm-cov show-env --sh` prints `RUSTFLAGS`,
 `LLVM_PROFILE_FILE`, and a coverage-specific `CARGO_TARGET_DIR` for the
 current shell. The `coverage` recipe sources those into a single bash
-process, runs `maturin develop` (which then builds the cdylib with
-`-C instrument-coverage`), runs pytest (which loads the instrumented
-extension and writes `.profraw` files on interpreter exit), and
-finally calls `cargo llvm-cov report` to merge them into the chosen
-output formats.
+process, runs `maturin develop --profile dev` (which then builds the
+cdylib with `-C instrument-coverage`), runs pytest (which loads the
+instrumented extension and writes `.profraw` files on interpreter
+exit), and finally calls `cargo llvm-cov report` to merge them into
+the chosen output formats.
 
 ### Gotchas
 
@@ -77,12 +77,17 @@ output formats.
   referenced only by the coverage map; strip removes the
   `__llvm_covmap` section needed for reporting. The recipe omits
   `--release` for that reason — don't add it back.
-- **`#[pymodule]` init isn't covered.** A long-standing rustc issue
-  (rust-lang/rust#84605) means proc-macro-generated init code can't
-  be instrumented. If the missing lines bother you, wrap the body of
-  `_engine` in `rust/src/lib.rs` with `// LCOV_EXCL_START` /
-  `// LCOV_EXCL_STOP` markers; LCOV-aware tools (Codecov, genhtml)
-  honour them.
+- **`#[pymodule]` init isn't coverable** (rust-lang/rust#84605 — proc-
+  macro-generated init can't be instrumented). The body of `_engine`
+  in `rust/src/lib.rs` is wrapped with `// LCOV_EXCL_START` /
+  `// LCOV_EXCL_STOP` markers. **Important**: those markers are
+  honoured by LCOV-format consumers (Coveralls, Codecov, `genhtml`)
+  that re-read the source file when processing the LCOV upload, but
+  **NOT by `cargo llvm-cov`'s own** `--summary-only` /
+  `--show-missing-lines` output, which uses LLVM's coverage data
+  directly. Expect Coveralls' reported number to be a few percentage
+  points higher than `just coverage`'s local summary; the local
+  number is a slight underestimate, not an error.
 - **`extension-module` stays on.** The "remove `extension-module`
   for tests" advice you may see online applies to running `cargo
   test` against a pyo3 crate — irrelevant here, since the tests are

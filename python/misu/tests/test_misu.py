@@ -303,3 +303,106 @@ def test_numpy_slice():
     x = np.array([ 0.08400557, 0.19897197, 0.12407021, 0.11867142]) * kg/hr
     assert repr(x[:2]) == '[0.084 0.199] kg/hr'
     assert repr(x[3]) == '0.1187 kg/hr'
+
+
+# --- Quantity unary ops -----------------------------------------------------
+
+def test_quantity_neg():
+    assert (-(2 * kg)).magnitude == -2.0
+
+
+def test_quantity_pos():
+    q = +(2 * kg)
+    assert q.magnitude == 2.0
+
+
+def test_quantity_abs():
+    assert abs(-2 * kg).magnitude == 2.0
+
+
+def test_quantity_float_dimensionless():
+    assert float(2.0 * dimensionless) == 2.0
+
+
+# --- Quantity hashability ---------------------------------------------------
+
+def test_quantity_hash_is_stable():
+    assert hash(2 * kg) == hash(2 * kg)
+
+
+def test_quantity_hash_dict_key():
+    d = {2 * kg: "two", 3 * kg: "three"}
+    assert d[2 * kg] == "two"
+
+
+# --- Quantity reflective accessors -----------------------------------------
+
+def test_quantity_unit_as_tuple_kg_index():
+    t = (2 * kg).unit_as_tuple()
+    assert t[1] == 1.0  # kg dim slot
+
+
+def test_quantity_as_tuple_round_trip():
+    mag, unit = (2 * kg).as_tuple()
+    assert mag == 2.0
+    assert unit[1] == 1.0
+
+
+def test_quantity_units_and_getunit_match():
+    assert (2 * kg).units() == (2 * kg).getunit()
+
+
+def test_quantity_unit_string():
+    assert (1 * kg)._unitString()
+
+
+# --- Quantity dimensionless math methods ------------------------------------
+
+@pytest.mark.parametrize(
+    "fn",
+    [
+        "sin", "cos", "tan",
+        "arcsin", "arccos", "arctan",
+        "degrees", "radians", "deg2rad", "rad2deg",
+        "sinh", "cosh", "tanh",
+        "arcsinh", "arccosh", "arctanh",
+        "exp", "expm1", "exp2",
+        "log", "log10", "log2", "log1p",
+    ],
+)
+def test_quantity_math_fn_returns_quantity(fn):
+    q = 0.5 * dimensionless
+    from misu import Quantity
+    result = getattr(q, fn)()
+    assert isinstance(result, Quantity)
+
+
+# --- Mixed scalar Quantity ↔ ndarray-Quantity arithmetic --------------------
+# These exercise the is_arraylike(other) dispatch arm in Quantity.__add__,
+# __sub__, __truediv__, __rsub__, __rtruediv__ — only reached when LHS is
+# a scalar Quantity and RHS is array-like.
+
+def test_scalar_q_plus_ndarray_q():
+    arr = np.array([1, 2, 3]) * kg
+    out = (10 * kg) + arr
+    from misu import QuantityNP
+    assert isinstance(out, QuantityNP)
+    assert list(out.magnitude) == [11.0, 12.0, 13.0]
+
+
+def test_scalar_q_minus_ndarray_q():
+    arr = np.array([1, 2]) * kg
+    out = (10 * kg) - arr
+    assert list(out.magnitude) == [9.0, 8.0]
+
+
+def test_scalar_q_div_ndarray_q():
+    arr = np.array([1, 2, 4]) * s
+    out = (8 * kg) / arr
+    assert list(out.magnitude) == [8.0, 4.0, 2.0]
+
+
+def test_scalar_q_times_ndarray_q():
+    arr = np.array([1, 2, 3]) * s
+    out = (4 * kg) * arr
+    assert list(out.magnitude) == [4.0, 8.0, 12.0]

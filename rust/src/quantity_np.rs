@@ -43,6 +43,12 @@ impl QuantityNP {
             let arr = Array1::from_elem(1, q.magnitude);
             return Ok(QuantityNP::new(arr.into_pyarray(py).unbind(), q.dim));
         }
+        // Bare Python scalar (int/float, also numpy 0-d): lift to a length-1
+        // dimensionless array so `3.0 * qnp` works as users expect.
+        if let Ok(mag) = obj.extract::<f64>() {
+            let arr = Array1::from_elem(1, mag);
+            return Ok(QuantityNP::new(arr.into_pyarray(py).unbind(), Dim::DIMENSIONLESS));
+        }
         // numpy ndarray path
         if let Ok(arr) = obj.cast::<PyArray1<f64>>() {
             return Ok(QuantityNP::new(arr.clone().unbind(), Dim::DIMENSIONLESS));

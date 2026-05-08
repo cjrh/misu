@@ -22,7 +22,7 @@ mod quantity_np;
 mod registry;
 
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyTuple};
+use pyo3::types::PyDict;
 
 use crate::errors::{EIncompatibleUnits, ESignatureAlreadyRegistered};
 use crate::quantity::Quantity;
@@ -74,6 +74,9 @@ fn quantity_from_string<'py>(
     parser::parse(py, s)
 }
 
+// LCOV_EXCL_START
+// The proc-macro-generated init body cannot be instrumented for coverage
+// (rust-lang/rust#84605). Excluded so coverage reflects testable code.
 #[pymodule]
 fn _engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Quantity>()?;
@@ -90,12 +93,10 @@ fn _engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(dimensions, m)?)?;
     m.add_function(wrap_pyfunction!(quantity_from_string, m)?)?;
     m.add_function(wrap_pyfunction!(_restore_quantity_np, m)?)?;
-    // Public-but-internal hooks used by the Python catalogue setup.
     m.add_function(wrap_pyfunction!(_unit_registry_set, m)?)?;
-    m.add_function(wrap_pyfunction!(_unit_registry_get, m)?)?;
-    m.add_function(wrap_pyfunction!(_unit_registry_keys, m)?)?;
     Ok(())
 }
+// LCOV_EXCL_STOP
 
 // ---- catalog support ----------------------------------------------------
 
@@ -103,20 +104,4 @@ fn _engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
 fn _unit_registry_set(py: Python<'_>, name: String, q: &Quantity) {
     let mut reg = registry::UNIT_REGISTRY.write();
     reg.insert(name, Py::new(py, q.clone()).unwrap());
-}
-
-#[pyfunction]
-fn _unit_registry_get<'py>(
-    py: Python<'py>,
-    name: String,
-) -> Option<Py<Quantity>> {
-    let reg = registry::UNIT_REGISTRY.read();
-    reg.get(&name).map(|q| q.clone_ref(py))
-}
-
-#[pyfunction]
-fn _unit_registry_keys<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyTuple>> {
-    let reg = registry::UNIT_REGISTRY.read();
-    let names: Vec<&str> = reg.keys().map(|s| s.as_str()).collect();
-    PyTuple::new(py, names)
 }

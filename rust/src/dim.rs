@@ -47,11 +47,6 @@ impl Dim {
         }
         Dim(out)
     }
-
-    #[inline(always)]
-    pub fn neg(&self) -> Dim {
-        self.scale(-1.0)
-    }
 }
 
 impl PartialEq for Dim {
