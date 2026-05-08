@@ -26,29 +26,15 @@ units of measurement.
 Install
 -------
 
-On Windows, precompiled wheels are provided so all you have to do is
-this:
+Precompiled wheels are published to PyPI for Linux (x86_64, aarch64),
+macOS (x86_64, aarch64), and Windows (x64), covering Python 3.9 and
+later. There is nothing to compile.
 
 .. code-block:: shell
 
+    uv add misu        # in a uv project
+    uv pip install misu
     pip install misu
-
-On Linux, you have to install from a source distribution (sdist). This is
-also on PyPI, but you must already have Cython and numpy present in your
-target environment. This is because they are required to build *misu*.
-Thus, you need something like this on Linux:
-
-.. code-block:: shell
-
-    $ python3.7 -m venv venv
-    $ source venv/bin/activate
-    (venv) $ pip install Cython numpy
-    (venv) $ pip install misu
-
-    <lots of compiler output>
-
-If you have have experience with making *manylinux* wheels for Linux, I
-would love to get your help to make them for *misu* too!
 
 Demo
 ----
@@ -150,9 +136,8 @@ Features
    will be around only 5X slower when used with ``misu``. This is much
    faster than other quantities packages for Python.
 
--  Written as a Cython extension module. Speed benefits carry over when
-   using ``misu`` from your own Cython module (a ``.pxd`` is provided
-   for linking).
+-  Implemented as a Rust extension module via
+   `PyO3 <https://pyo3.rs/>`__, so the hot paths run as native code.
 
 -  When an operation involving incompatible units is attempted, an
    ``EIncompatibleUnits`` exception is raised, with a clear explanation
@@ -198,8 +183,8 @@ There are other projects, why ``misu``?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are several units systems for Python, but the primary motivating
-use-case is that ``misu`` is written as a Cython module and is by far
-the fastest\* for managing units available in Python.
+use-case is that ``misu`` is written as a Rust extension module and is
+by far the fastest\* for managing units available in Python.
 
 \*\ *Except for ``NumericalUnits``, which is a special case*
 
