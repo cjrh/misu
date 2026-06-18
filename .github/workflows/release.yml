@@ -75,7 +75,7 @@ jobs:
           name: wheels-windows-${{ matrix.target }}
           path: dist
 
-  # Free-threaded (no-GIL) wheels. PyO3 0.28's `abi3-py39` feature is
+  # Free-threaded (no-GIL) wheels. PyO3 0.29's `abi3-py39` feature is
   # silently ignored under a free-threaded interpreter, so maturin emits
   # version-specific cp314t wheels here rather than abi3.
   linux-freethreaded:

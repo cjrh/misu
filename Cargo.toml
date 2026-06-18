@@ -2,7 +2,7 @@
 name = "misu_engine"
 version = "2.0.3"
 edition = "2021"
-rust-version = "1.74"
+rust-version = "1.83"
 description = "Rust core for the misu Python units-of-measurement package."
 license = "MIT"
 repository = "https://github.com/cjrh/misu"
@@ -19,9 +19,9 @@ path = "rust/src/lib.rs"
 # support `Py_LIMITED_API`, so abi3 is silently ignored under 3.13t /
 # 3.14t — those interpreters require separate, version-specific wheels
 # (see the `*-freethreaded` jobs in `.github/workflows/release.yml`).
-pyo3 = { version = "0.28", features = ["abi3-py39", "extension-module"] }
-numpy = "0.28"
-# Version coupling: rust-numpy 0.28 re-exports ndarray 0.17. Keep these
+pyo3 = { version = "0.29.0", features = ["abi3-py39", "extension-module"] }
+numpy = "0.29.0"
+# Version coupling: rust-numpy 0.29 re-exports ndarray 0.17. Keep these
 # in lockstep — a mismatch produces "two different ndarray crates in the
 # graph" trait-bound errors. Verify with `cargo tree | grep ndarray`.
 ndarray = "0.17"
