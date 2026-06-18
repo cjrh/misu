@@ -1,7 +1,7 @@
 //! Scalar-magnitude Quantity (replaces the Cython `Quantity` class).
 //!
 //! `Quantity` is declared `#[pyclass(frozen)]` — instances are immutable
-//! after construction. Combined with PyO3 0.28+'s default
+//! after construction. Combined with PyO3 0.29+'s default
 //! `gil_used = false` for the module, that makes scalar arithmetic
 //! free-threading-safe without any explicit `py.detach()` /
 //! `Python::allow_threads` calls. (Compare `quantity_np.rs`, where the

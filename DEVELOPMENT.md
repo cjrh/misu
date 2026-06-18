@@ -114,7 +114,7 @@ maturin develop --release --interpreter python3.14t
 
 Thread-safety posture:
 
-- PyO3 0.28+ defaults to `gil_used = false` at the module level, so
+- PyO3 0.29+ defaults to `gil_used = false` at the module level, so
   `misu._engine` already declares itself free-thread-aware.
 - `Quantity` is `#[pyclass(frozen)]` — immutable after construction —
   so scalar arithmetic is safe without explicit GIL release. See the
