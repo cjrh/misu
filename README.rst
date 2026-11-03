@@ -24,7 +24,7 @@ Install
 -------
 
 Precompiled wheels are published to PyPI for Linux (x86_64, aarch64),
-macOS (x86_64, aarch64), and Windows (x64), covering Python 3.9 and
+macOS (x86_64, aarch64), and Windows (x64), covering Python 3.10 and
 later. There is nothing to compile.
 
 .. code-block:: shell
